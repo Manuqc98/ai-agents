@@ -23,7 +23,11 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 ├── AGENTS.md                  # Punto de entrada único: reglas de oro, circuitos y contrato de handoff
 ├── CLAUDE.md -> AGENTS.md     # Enlace simbólico para compatibilidad automática con Claude Code
 ├── README.md                  # Visión general, principios de portabilidad y hoja de ruta
-├── agents/                    # Roles del equipo (se poblará en la Iteración 2)
+├── agents/                    # Equipo mínimo viable de 4 roles (Iteración 2)
+│   ├── orchestrator.md        # Coordinador: clasifica, delega, controla bucles y reporta
+│   ├── architect.md           # Arquitecto: requisitos medibles, opciones, replanteo y ADRs
+│   ├── implementer.md         # Implementador: código limpio, cambio mínimo y plan de reversión
+│   └── qa.md                  # Verificador independiente: pruebas, evidencias y dictamen
 ├── skills/                    # Conocimiento modular cargado bajo demanda
 │   └── agent-routing/         # Clasificación de peticiones, circuitos y contrato de traspaso
 ├── specs/                     # Guiones interactivos por fases (se poblará en la Iteración 4)
@@ -36,7 +40,18 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 
 ---
 
-## 3. Flujo de trabajo
+## 3. El equipo base (`agents/`)
+
+| Agente | Rol | Nivel (`LLM.md`) | ¿Escribe código de producción? |
+|---|---|---|---|
+| [`orchestrator`](agents/orchestrator.md) | Clasifica, elige circuito, delega con contrato, corta bucles a la 3.ª vuelta y reporta desviación | `media` | **No** (`edit`/`write` denegados) |
+| [`architect`](agents/architect.md) | Aterriza requisitos, hace [replanteo](docs/glosario.md#replanteo), compara opciones y redacta [ADRs](docs/glosario.md#adr) | `complicada` | **No** (`edit`/`write` denegados) |
+| [`implementer`](agents/implementer.md) | Implementa cambios acotados, migraciones y correcciones con comprobación local | `media` | **Sí** (no firma su propio QA) |
+| [`qa`](agents/qa.md) | Verifica criterios de aceptación con evidencias reales, añade tests y emite dictamen | `media` | **Solo tests** (prohibido tocar código de producción) |
+
+---
+
+## 4. Flujo de trabajo
 
 Toda petición pasa primero por [`skills/agent-routing/SKILL.md`](skills/agent-routing/SKILL.md) para elegir el camino más ligero posible:
 
@@ -50,9 +65,9 @@ Toda petición pasa primero por [`skills/agent-routing/SKILL.md`](skills/agent-r
 
 ---
 
-## 4. Hoja de ruta de construcción incremental
+## 5. Hoja de ruta de construcción incremental
 
 - [x] **Iteración 1 — El esqueleto agnóstico:** [`AGENTS.md`](AGENTS.md) único, política multi-modelo [`docs/LLM.md`](docs/LLM.md), enrutador [`skills/agent-routing/SKILL.md`](skills/agent-routing/SKILL.md), [`docs/glosario.md`](docs/glosario.md) base y plantillas universales en [`docs/plantillas/`](docs/plantillas/).
-- [ ] **Iteración 2 — El equipo mínimo viable (4 agentes):** `orchestrator`, `architect`, `implementer` y `qa`.
+- [x] **Iteración 2 — El equipo mínimo viable (4 agentes):** [`orchestrator`](agents/orchestrator.md), [`architect`](agents/architect.md), [`implementer`](agents/implementer.md) y [`qa`](agents/qa.md).
 - [ ] **Iteración 3 — Guardarraíles deterministas:** validador en Python (`tools/check-repo.py`) para verificar enlaces, cabeceras y coherencia sin consumir tokens.
 - [ ] **Iteración 4 — Memoria persistente y specs:** estado en SQLite y guiones multifase bajo demanda.

@@ -19,6 +19,15 @@ Un sistema modular de agentes, *skills* (habilidades) y *specs* (especificacione
 | `docs/` | **La memoria estática**: [`glosario.md`](docs/glosario.md), [`LLM.md`](docs/LLM.md) y [`plantillas/`](docs/plantillas/) | Vocabulario común y configuración multi-modelo |
 | `tools/` | **El control determinista**: scripts que validan y persisten el estado | No fiar a la memoria del LLM lo que puede comprobar un script |
 
+### El equipo base (`agents/`)
+
+| Agente | Rol | Nivel (`LLM.md`) | ¿Escribe código de producción? |
+|---|---|---|---|
+| [`orchestrator`](agents/orchestrator.md) | **Coordinador**: clasifica, elige circuito, delega con contrato, controla las 3 vueltas y reporta desviación | `media` | No |
+| [`architect`](agents/architect.md) | **Arquitecto**: traduce requisitos ambiguos, hace [replanteo](docs/glosario.md#replanteo), compara opciones y escribe [ADRs](docs/glosario.md#adr) | `complicada` | No |
+| [`implementer`](agents/implementer.md) | **Implementador**: escribe código y migraciones respetando el proyecto y con [plan de reversión](docs/glosario.md#plan-de-reversion) | `media` | Sí |
+| [`qa`](agents/qa.md) | **Verificador independiente**: comprueba criterios de aceptación con evidencia real, añade tests y emite dictamen | `media` | Solo tests |
+
 ---
 
 ## 2. Lo primero: clasifica la petición
