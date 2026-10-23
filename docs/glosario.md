@@ -77,5 +77,5 @@ Métrica continua que mide la salud de un proceso o producto. Para ser válido n
 - **SLO (*Service Level Objective*, objetivo de nivel de servicio):** meta interna medible de fiabilidad o rendimiento (por ejemplo, disponibilidad del 99,9 % o latencia `p95 < 200 ms`).
 - **SLA (*Service Level Agreement*, acuerdo de nivel de servicio):** contrato externo con el cliente que incluye consecuencias o penalizaciones si se incumple. El SLO interno debe ser siempre más estricto que el SLA.
 
-### p50 / p95 / p99 (Percentiles de latencia)
-Medida del tiempo de respuesta que experimenta el 50 %, el 95 % o el 99 % de las peticiones. Se usa en lugar de la media aritmética porque la media oculta los casos lentos que sufren los usuarios reales.
+### p50 / p95 / p99
+**Percentiles de latencia.** Medida del tiempo de respuesta que experimenta el 50 %, el 95 % o el 99 % de las peticiones. Se usa en lugar de la media aritmética porque la media oculta los casos lentos que sufren los usuarios reales.

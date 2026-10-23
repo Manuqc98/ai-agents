@@ -62,7 +62,7 @@ Basada en criterios objetivos, no en sensaciones:
 | `Soporte` | cualquiera | **conciso** | Respuesta con fuente verificada (+ documentación si es recurrente) |
 | `Mejora Técnica` | cualquiera | **conciso** | `architect` → `implementer` → `qa` |
 | `Tarea` | cualquiera | **conciso** | `implementer` → `qa` |
-| `Diseño y prototipado` | cualquiera | **conciso / acotado** | `architect` (análisis, opciones y [ADR](../../docs/glosario.md#adr), sin fase de implementación) |
+| `Diseño y prototipado` | cualquiera | **conciso** | `architect` (análisis, opciones y [ADR](../../docs/glosario.md#adr), sin fase de implementación) |
 | `Mejora Funcional` | cualquiera | **completo** | Requisitos → `architect` → Plan → `implementer` → `qa` |
 | `Historia` | cualquiera | **completo** | Requisitos → `architect` → Plan → `implementer` → `qa` |
 | `Epic` | cualquiera | **completo** | Descomposición en historias → un ciclo por historia |

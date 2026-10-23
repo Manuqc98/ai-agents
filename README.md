@@ -35,7 +35,10 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 │   ├── LLM.md                 # Política de modelos multi-proveedor por nivel de complejidad
 │   ├── glosario.md            # Vocabulario canónico compartido
 │   └── plantillas/            # Plantillas neutras para crear nuevos agentes y skills
-└── tools/                     # Scripts deterministas de validación y memoria (Iteraciones 3 y 4)
+├── tests/
+│   └── clasificacion.md       # Batería de 15 casos de regresión del enrutado (Tipo × Severidad)
+└── tools/
+    └── check-repo.py          # Validador determinista: enlaces+#anclas, frontmatter, portabilidad multi-LLM y clasificación
 ```
 
 ---
@@ -69,5 +72,5 @@ Toda petición pasa primero por [`skills/agent-routing/SKILL.md`](skills/agent-r
 
 - [x] **Iteración 1 — El esqueleto agnóstico:** [`AGENTS.md`](AGENTS.md) único, política multi-modelo [`docs/LLM.md`](docs/LLM.md), enrutador [`skills/agent-routing/SKILL.md`](skills/agent-routing/SKILL.md), [`docs/glosario.md`](docs/glosario.md) base y plantillas universales en [`docs/plantillas/`](docs/plantillas/).
 - [x] **Iteración 2 — El equipo mínimo viable (4 agentes):** [`orchestrator`](agents/orchestrator.md), [`architect`](agents/architect.md), [`implementer`](agents/implementer.md) y [`qa`](agents/qa.md).
-- [ ] **Iteración 3 — Guardarraíles deterministas:** validador en Python (`tools/check-repo.py`) para verificar enlaces, cabeceras y coherencia sin consumir tokens.
+- [x] **Iteración 3 — Guardarraíles deterministas:** validador en Python ([`tools/check-repo.py`](tools/check-repo.py)) y batería de regresión ([`tests/clasificacion.md`](tests/clasificacion.md)) para verificar enlaces, anclas, frontmatter y **portabilidad multi-LLM** sin consumir tokens.
 - [ ] **Iteración 4 — Memoria persistente y specs:** estado en SQLite y guiones multifase bajo demanda.
