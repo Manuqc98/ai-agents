@@ -23,6 +23,8 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 ├── AGENTS.md                  # Punto de entrada único: reglas de oro, circuitos y contrato de handoff
 ├── CLAUDE.md -> AGENTS.md     # Enlace simbólico para compatibilidad automática con Claude Code
 ├── README.md                  # Visión general, principios de portabilidad y hoja de ruta
+├── .agents/
+│   └── schema.sql             # Esquema SQLite de 4 tablas (tareas, notas, decisiones, uso de modelos)
 ├── agents/                    # Equipo mínimo viable de 4 roles (Iteración 2)
 │   ├── orchestrator.md        # Coordinador: clasifica, delega, controla bucles y reporta
 │   ├── architect.md           # Arquitecto: requisitos medibles, opciones, replanteo y ADRs
@@ -30,7 +32,8 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 │   └── qa.md                  # Verificador independiente: pruebas, evidencias y dictamen
 ├── skills/                    # Conocimiento modular cargado bajo demanda
 │   └── agent-routing/         # Clasificación de peticiones, circuitos y contrato de traspaso
-├── specs/                     # Guiones interactivos por fases (se poblará en la Iteración 4)
+├── specs/                     # Guiones interactivos por fases (Iteración 4)
+│   └── solution-design-spec/  # Guion SDD en 4 fases para el circuito completo
 ├── docs/
 │   ├── LLM.md                 # Política de modelos multi-proveedor por nivel de complejidad
 │   ├── glosario.md            # Vocabulario canónico compartido
@@ -38,7 +41,8 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 ├── tests/
 │   └── clasificacion.md       # Batería de 15 casos de regresión del enrutado (Tipo × Severidad)
 └── tools/
-    └── check-repo.py          # Validador determinista: enlaces+#anclas, frontmatter, portabilidad multi-LLM y clasificación
+    ├── check-repo.py          # Validador determinista: enlaces+#anclas, frontmatter, portabilidad multi-LLM y clasificación
+    └── project-memory.py      # Gestor de memoria SQLite: tareas, corte a las 3 vueltas, ADRs y uso multi-LLM
 ```
 
 ---
@@ -63,7 +67,7 @@ Toda petición pasa primero por [`skills/agent-routing/SKILL.md`](skills/agent-r
                   │
                   ├─► Quirúrgico : Incidencia bloqueante (mitigar → verificar → documentar)
                   ├─► Conciso    : Cambio acotado o consulta (ejecutar → verificar)
-                  └─► Completo   : Diseño nuevo (Negocio → Arquitectura → Plan → Código → QA)
+                  └─► Completo   : solution-design-spec (Problema → Arquitectura → Plan SQLite → Código → QA)
 ```
 
 ---
@@ -73,4 +77,4 @@ Toda petición pasa primero por [`skills/agent-routing/SKILL.md`](skills/agent-r
 - [x] **Iteración 1 — El esqueleto agnóstico:** [`AGENTS.md`](AGENTS.md) único, política multi-modelo [`docs/LLM.md`](docs/LLM.md), enrutador [`skills/agent-routing/SKILL.md`](skills/agent-routing/SKILL.md), [`docs/glosario.md`](docs/glosario.md) base y plantillas universales en [`docs/plantillas/`](docs/plantillas/).
 - [x] **Iteración 2 — El equipo mínimo viable (4 agentes):** [`orchestrator`](agents/orchestrator.md), [`architect`](agents/architect.md), [`implementer`](agents/implementer.md) y [`qa`](agents/qa.md).
 - [x] **Iteración 3 — Guardarraíles deterministas:** validador en Python ([`tools/check-repo.py`](tools/check-repo.py)) y batería de regresión ([`tests/clasificacion.md`](tests/clasificacion.md)) para verificar enlaces, anclas, frontmatter y **portabilidad multi-LLM** sin consumir tokens.
-- [ ] **Iteración 4 — Memoria persistente y specs:** estado en SQLite y guiones multifase bajo demanda.
+- [x] **Iteración 4 — Memoria persistente y specs:** estado en SQLite ([`tools/project-memory.py`](tools/project-memory.py) + [`.agents/schema.sql`](.agents/schema.sql)) y guion multifase ([`specs/solution-design-spec/SKILL.md`](specs/solution-design-spec/SKILL.md)).

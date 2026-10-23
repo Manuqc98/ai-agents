@@ -1,0 +1,11 @@
+# Python y cachés locales
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Ficheros temporales de SQLite (el esquema .agents/schema.sql sí se versiona)
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+.agents/memory.sqlite3

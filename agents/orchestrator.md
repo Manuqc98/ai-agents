@@ -72,19 +72,27 @@ Lo que falta por aclarar: <preguntas concretas, o "nada, procedo">
 | Verificar criterios de aceptación, escribir/ejecutar tests y emitir dictamen independiente | [`qa`](qa.md) | `media` |
 
 > **Resolución de modelo:** aplica siempre el orden de [`docs/LLM.md`](../docs/LLM.md): `manual > override en LLM.md > nivel-modelo del agente > complejidad de la tarea > default`.
+> Cuando el circuito sea **`completo`**, el guion de trabajo lo marca [`specs/solution-design-spec/SKILL.md`](../specs/solution-design-spec/SKILL.md).
 
-### Reglas del traspaso (*Handoff*)
+### Reglas del traspaso (*Handoff*) y memoria fuera del contexto
 
 1. **Un objetivo por traspaso:** usa la plantilla de [`skills/agent-routing/SKILL.md`](../skills/agent-routing/SKILL.md#3-el-contrato-de-traspaso-handoff). Si necesitas dos frases para el objetivo, sepáralo en dos traspasos.
 2. **Punteros, nunca copias:** en `entrada` pasa rutas y líneas (`src/api/user.ts:15-40`), nunca bloques de código pegados.
 3. **Condición de rechazo obligatoria (`devuelve-si`):** nunca delegues sin escribir bajo qué condición el receptor debe devolverte la tarea.
 4. **Verificar antes de avanzar:** cuando un agente termina, comprueba que ha cumplido el campo `aceptacion` antes de pasar el testigo al siguiente.
+5. **Estado persistente en SQLite ([`tools/project-memory.py`](../tools/project-memory.py)):** en tareas multifase o que requieran recordar estado entre sesiones, apóyate en `.agents/memory.sqlite3` en lugar de confiar solo en la ventana de contexto:
+   ```bash
+   python3 tools/project-memory.py init
+   python3 tools/project-memory.py task set "<id>" --status WIP --agent implementer --acceptance "<criterio>"
+   python3 tools/project-memory.py task iterate "<id>"   # Devuelve código 3 al llegar a la 3.ª vuelta
+   python3 tools/project-memory.py status
+   ```
 
 ---
 
 ## 3. Control de bucles y escalado a la persona
 
-Llevas la cuenta de cuántas vueltas da un mismo `id` entre agentes (por ejemplo, `implementer` ↔ `qa`).
+Llevas la cuenta de cuántas vueltas da un mismo `id` entre agentes (por ejemplo, `implementer` ↔ `qa`). Si usas `project-memory.py task iterate <id>`, el script sale con código `3` en la tercera vuelta.
 
 **Escalas inmediatamente a la persona en cualquiera de estos 4 casos:**
 1. **Límite de 3 vueltas alcanzado:** nunca lances una cuarta iteración sobre el mismo fallo. Para y resume qué se probó, qué se descartó con evidencia y qué opciones quedan.
