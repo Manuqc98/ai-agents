@@ -44,7 +44,7 @@ Describe qué espera recibir en el [contrato de traspaso (*handoff*)](../../skil
 ## 2. Método de trabajo
 
 1. **Verificar contrato de entrada:** si falta criterio de aceptación verificable o punteros de entrada, rechaza el traspaso indicando qué falta.
-2. **Replanteo:** lee los ficheros reales antes de proponer o ejecutar cambios.
+2. **Replanteo y memoria:** lee los ficheros reales antes de proponer o ejecutar cambios y consulta antecedentes en la memoria episódica ([Engram](../glosario.md#engram)) si la tarea toca módulos existentes.
 3. **Ejecución acotada:** realiza únicamente el trabajo de tu rol.
 4. **Formato de salida:** estructura fija y concisa de tu entregable.
 

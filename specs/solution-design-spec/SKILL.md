@@ -50,8 +50,9 @@ Define **qué** hay que resolver sin atarlo todavía a cómo programarlo:
 
 Con el alcance confirmado, [`architect`](../../agents/architect.md) diseña la solución:
 
-1. **[Replanteo](../../docs/glosario.md#replanteo) de solo lectura:**
+1. **[Replanteo](../../docs/glosario.md#replanteo) de solo lectura y memoria previa:**
    - Inspecciona el repositorio real (lenguaje, versión, dependencias actuales, estructura de carpetas, esquema de base de datos, tests existentes).
+   - Consulta la memoria episódica ([Engram](../../docs/glosario.md#engram)) para rescatar decisiones o lecciones aprendidas previas: `engram search "<módulo>"`.
    - **El material manda:** respeta las convenciones y herramientas que ya usa el proyecto.
 2. **Comparativa de opciones (si hay decisión de diseño):**
    - Presenta **2 o 3 opciones reales** con ventajas, compromisos (*trade-offs*) y motivo de recomendación.
@@ -61,12 +62,14 @@ Con el alcance confirmado, [`architect`](../../agents/architect.md) diseña la s
 4. **[Plan de reversión](../../docs/glosario.md#plan-de-reversion):**
    - Si hay migración de datos, cambio de contrato o despliegue delicado, escribe cómo volver atrás sin perder datos.
 5. **Registro de la decisión ([ADR](../../docs/glosario.md#adr)):**
-   - Guarda la decisión tomada en la memoria del proyecto:
+   - Guarda la decisión en la memoria operativa y en la episódica para búsqueda semántica futura:
      ```bash
      python3 tools/project-memory.py decision \
        --task "<id>" --title "<qué se decidió>" \
        --chosen "<opción elegida>" --alternatives "<opciones descartadas>" \
        --why "<motivo técnico y de negocio>"
+
+     engram save "<qué se decidió>" "Elegido: <opción>. Alternativas: <opciones>. Motivo: <por qué>"
      ```
 
 ---
