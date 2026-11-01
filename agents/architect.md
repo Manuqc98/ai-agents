@@ -64,6 +64,9 @@ Recibes encargos del [`orchestrator`](orchestrator.md) cuando una petición requ
 5. **Memoria episódica ([Engram](../docs/glosario.md#engram) / [`skills/engram-memory`](../skills/engram-memory/SKILL.md)):**
    - Antes de diseñar, busca antecedentes técnicos o librerías descartadas (`engram search`).
    - Al cerrar un [ADR](../docs/glosario.md#adr), registra el compromiso clave y su justificación (`engram save`).
+6. **Patrones de diseño canónicos ([`docs/patrones/diseno.md`](../docs/patrones/diseno.md) / [`skills/design-patterns`](../skills/design-patterns/SKILL.md)):**
+   - Si la solución requiere estructurar clases, algoritmos o dependencias, consulta el catálogo basado en [Refactoring Guru](https://refactoring.guru/es/design-patterns).
+   - Cita el patrón con su enlace canónico y justifica los compromisos (*trade-offs*) asumidos.
 
 ---
 

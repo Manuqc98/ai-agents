@@ -32,6 +32,7 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 │   └── qa.md                  # Verificador independiente: pruebas, evidencias y dictamen
 ├── skills/                    # Conocimiento modular cargado bajo demanda
 │   ├── agent-routing/         # Clasificación de peticiones, circuitos y contrato de traspaso
+│   ├── design-patterns/       # Selección y triaje de patrones de diseño (Refactoring Guru)
 │   └── engram-memory/         # Memoria episódica y semántica persistente (Engram vía MCP/CLI)
 ├── specs/                     # Guiones interactivos por fases (Iteración 4)
 │   └── solution-design-spec/  # Guion SDD en 4 fases para el circuito completo
@@ -39,6 +40,7 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 │   ├── LLM.md                 # Política de modelos multi-proveedor por nivel de complejidad
 │   ├── glosario.md            # Vocabulario canónico compartido
 │   ├── mcp/                   # Plantillas de configuración MCP (Engram)
+│   ├── patrones/              # Catálogo canónico de patrones (22 patrones GoF indexados)
 │   └── plantillas/            # Plantillas neutras para crear nuevos agentes y skills
 ├── tests/
 │   └── clasificacion.md       # Batería de 15 casos de regresión del enrutado (Tipo × Severidad)
@@ -82,3 +84,4 @@ Toda petición pasa primero por [`skills/agent-routing/SKILL.md`](skills/agent-r
 - [x] **Iteración 3 — Guardarraíles deterministas:** validador en Python ([`tools/check-repo.py`](tools/check-repo.py)) y batería de regresión ([`tests/clasificacion.md`](tests/clasificacion.md)) para verificar enlaces, anclas, frontmatter y **portabilidad multi-LLM** sin consumir tokens.
 - [x] **Iteración 4 — Memoria persistente y specs:** estado en SQLite ([`tools/project-memory.py`](tools/project-memory.py) + [`.agents/schema.sql`](.agents/schema.sql)) y guion multifase ([`specs/solution-design-spec/SKILL.md`](specs/solution-design-spec/SKILL.md)).
 - [x] **Extensión — Memoria dual con Engram:** memoria episódica semántica entre sesiones con [Engram](docs/glosario.md#engram) vía [MCP](docs/glosario.md#mcp) ([`docs/mcp/engram.json`](docs/mcp/engram.json)), skill [`skills/engram-memory/SKILL.md`](skills/engram-memory/SKILL.md) e instalador universal [`tools/install-engram.sh`](tools/install-engram.sh).
+- [x] **Extensión — Catálogo canónico de patrones:** los 22 patrones GoF indexados a [Refactoring Guru](docs/patrones/diseno.md), regla obligatoria en [`AGENTS.md`](AGENTS.md) y skill de triaje [`skills/design-patterns/SKILL.md`](skills/design-patterns/SKILL.md).

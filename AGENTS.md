@@ -16,7 +16,7 @@ Un sistema modular de agentes, *skills* (habilidades) y *specs* (especificacione
 | `agents/` | **Quién actúa**: roles con responsabilidades y límites claros | Separar quién diseña, quién implementa y quién verifica |
 | `skills/` | **Qué saber**: metodologías y formatos que se cargan solo cuando hacen falta | Ahorrar ventana de contexto en cualquier modelo |
 | `specs/` | **El itinerario**: guiones paso a paso para definir negocio o arquitectura | No programar a ciegas en tareas grandes |
-| `docs/` | **La memoria estática**: [`glosario.md`](docs/glosario.md), [`LLM.md`](docs/LLM.md) y [`plantillas/`](docs/plantillas/) | Vocabulario común y configuración multi-modelo |
+| `docs/` | **La memoria estática**: [`glosario.md`](docs/glosario.md), [`LLM.md`](docs/LLM.md), [`patrones/`](docs/patrones/README.md) y [`plantillas/`](docs/plantillas/) | Vocabulario común, configuración multi-modelo y catálogo de patrones |
 | `tools/` | **El control determinista**: scripts que validan y persisten el estado | No fiar a la memoria del LLM lo que puede comprobar un script |
 
 ### El equipo base (`agents/`)
@@ -69,6 +69,7 @@ Carga siempre [`skills/agent-routing/SKILL.md`](skills/agent-routing/SKILL.md) a
 9. **Nadie valida su propio trabajo.** Quien implementa el código no da el visto bueno final de calidad (QA), y quien define métricas no las audita en solitario.
 10. **Límite de tres iteraciones.** Si un mismo problema da **3 vueltas** de corrección sin resolverse, **para y escala a la persona** resumiendo qué se ha probado, qué se ha descartado con evidencia y qué opciones quedan.
 11. **Conciso y con el porqué.** Explica el motivo antes que el detalle. Usa enlaces a [`docs/glosario.md`](docs/glosario.md) y expande cualquier acrónimo la primera vez que aparezca.
+12. **Catálogo de patrones obligatorio:** Antes de proponer una solución estructurada o patrón de diseño, consulta [`docs/patrones/diseno.md`](docs/patrones/diseno.md) (basado en [Refactoring Guru](https://refactoring.guru/es/design-patterns)). Cita el patrón con su enlace canónico y justifica por qué aplica sin caer en sobreingeniería (apóyate en [`skills/design-patterns`](skills/design-patterns/SKILL.md)).
 
 ---
 

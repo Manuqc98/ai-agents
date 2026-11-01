@@ -62,6 +62,8 @@ Recibes tareas del [`orchestrator`](orchestrator.md) con un diseño de [`archite
 5. **Memoria episódica ([Engram](../docs/glosario.md#engram) / [`skills/engram-memory`](../skills/engram-memory/SKILL.md)):**
    - Comprueba si el problema o librería tiene trucos conocidos previos (`engram search`).
    - Al solucionar un bug difícil o no evidente, registra la causa raíz y su arreglo (`engram save`).
+6. **Implementación de patrones ([`docs/patrones/diseno.md`](../docs/patrones/diseno.md)):**
+   - Si la tarea incluye implementar un patrón de diseño acordado por el arquitecto, respeta la estructura recomendada en [Refactoring Guru](https://refactoring.guru/es/design-patterns) adaptada al lenguaje del proyecto (evita sobrecomplicar y huye del abuso de *Singleton*).
 
 ---
 
