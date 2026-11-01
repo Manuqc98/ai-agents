@@ -43,6 +43,21 @@ Comprobación de solo lectura que contrasta un plan o diseño contra la realidad
 ### Plan de reversión
 Procedimiento concreto y verificado para deshacer un cambio destructivo, migración o mitigación en caso de fallo, escrito **antes** de aplicar la acción.
 
+### Memoria Operativa
+Seguimiento estructurado y determinista del plan de trabajo (tareas, estados `TODO`/`WIP`/`DONE`, corte a las 3 vueltas y consumo de modelos por proveedor), persistido en SQLite mediante [`tools/project-memory.py`](../tools/project-memory.py).
+
+### Memoria Episódica
+Memoria histórica y acumulativa que preserva aprendizajes, convenciones no escritas, decisiones de diseño y soluciones a bugs entre sesiones y modelos, persistida mediante [Engram](#engram).
+
+### Engram
+Sistema de memoria persistente entre sesiones para agentes de programación creado por Alan Buscaglia (Gentleman Programming). Funciona como un binario en Go con SQLite y [FTS5 / BM25](#fts5--bm25) expuesto mediante el protocolo [MCP](#mcp) y CLI.
+
+### MCP
+**Model Context Protocol** — Protocolo abierto estándar para conectar modelos de lenguaje con herramientas locales, bases de datos y servidores de memoria externa (como Engram) de forma independiente del fabricante.
+
+### FTS5 / BM25
+Motor de búsqueda de texto completo (*Full-Text Search*) integrado en SQLite que utiliza el algoritmo de clasificación probabilístico BM25 (*Best Matching 25*) para ordenar resultados por relevancia.
+
 ---
 
 ## 2. Ingeniería de software y arquitectura
@@ -64,6 +79,9 @@ Propiedad de una operación por la cual ejecutarla una vez o varias veces con lo
 ### MVP y PoC
 - **MVP (*Minimum Viable Product*, producto mínimo viable):** la versión más pequeña de una solución que entrega valor real en producción con calidad, seguridad y tests suficientes.
 - **PoC (*Proof of Concept*, prueba de concepto):** experimento técnico acotado y descartable para validar si una idea es viable. **Nunca se pasa una PoC directamente a producción.**
+
+### PII
+**Personally Identifiable Information** — Información de identificación personal (nombres, correos, documentos de identidad, números de tarjeta). Nunca debe registrarse en memorias persistentes, logs ni tests sin anonimizar.
 
 ---
 

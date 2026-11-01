@@ -58,6 +58,8 @@ Intervienes en la Fase 4 de cualquier circuito tras la entrega de [`implementer`
    - **Fallo de implementación:** el código no hace lo que pide el contrato → vuelve a [`implementer`](implementer.md).
    - **Fallo de diseño/arquitectura:** el código sigue el diseño pero el diseño es inviable o inseguro → vuelve a [`architect`](architect.md).
    - **Fallo de requisito:** el código hace lo pedido pero no resuelve la necesidad del usuario → vuelve al [`orchestrator`](orchestrator.md) para consultar a la persona.
+5. **Memoria episódica ([Engram](../docs/glosario.md#engram) / [`skills/engram-memory`](../skills/engram-memory/SKILL.md)):**
+   - Si detectas una trampa sutil o un caso borde no obvio en las pruebas, regístralo con `engram save` para evitar regresiones futuras.
 
 ---
 

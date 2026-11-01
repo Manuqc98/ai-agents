@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/mcp-config.json",
+  "description": "Configuración de Engram como servidor MCP para Antigravity, Claude Code, Cursor, OpenCode o Gemini CLI",
+  "mcpServers": {
+    "engram": {
+      "type": "stdio",
+      "command": "engram",
+      "args": ["mcp", "--tools=agent"],
+      "env": {}
+    }
+  }
+}

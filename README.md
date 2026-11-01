@@ -31,17 +31,20 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 │   ├── implementer.md         # Implementador: código limpio, cambio mínimo y plan de reversión
 │   └── qa.md                  # Verificador independiente: pruebas, evidencias y dictamen
 ├── skills/                    # Conocimiento modular cargado bajo demanda
-│   └── agent-routing/         # Clasificación de peticiones, circuitos y contrato de traspaso
+│   ├── agent-routing/         # Clasificación de peticiones, circuitos y contrato de traspaso
+│   └── engram-memory/         # Memoria episódica y semántica persistente (Engram vía MCP/CLI)
 ├── specs/                     # Guiones interactivos por fases (Iteración 4)
 │   └── solution-design-spec/  # Guion SDD en 4 fases para el circuito completo
 ├── docs/
 │   ├── LLM.md                 # Política de modelos multi-proveedor por nivel de complejidad
 │   ├── glosario.md            # Vocabulario canónico compartido
+│   ├── mcp/                   # Plantillas de configuración MCP (Engram)
 │   └── plantillas/            # Plantillas neutras para crear nuevos agentes y skills
 ├── tests/
 │   └── clasificacion.md       # Batería de 15 casos de regresión del enrutado (Tipo × Severidad)
 └── tools/
     ├── check-repo.py          # Validador determinista: enlaces+#anclas, frontmatter, portabilidad multi-LLM y clasificación
+    ├── install-engram.sh      # Instalador automático y compilado del binario de Engram
     └── project-memory.py      # Gestor de memoria SQLite: tareas, corte a las 3 vueltas, ADRs y uso multi-LLM
 ```
 
@@ -78,3 +81,4 @@ Toda petición pasa primero por [`skills/agent-routing/SKILL.md`](skills/agent-r
 - [x] **Iteración 2 — El equipo mínimo viable (4 agentes):** [`orchestrator`](agents/orchestrator.md), [`architect`](agents/architect.md), [`implementer`](agents/implementer.md) y [`qa`](agents/qa.md).
 - [x] **Iteración 3 — Guardarraíles deterministas:** validador en Python ([`tools/check-repo.py`](tools/check-repo.py)) y batería de regresión ([`tests/clasificacion.md`](tests/clasificacion.md)) para verificar enlaces, anclas, frontmatter y **portabilidad multi-LLM** sin consumir tokens.
 - [x] **Iteración 4 — Memoria persistente y specs:** estado en SQLite ([`tools/project-memory.py`](tools/project-memory.py) + [`.agents/schema.sql`](.agents/schema.sql)) y guion multifase ([`specs/solution-design-spec/SKILL.md`](specs/solution-design-spec/SKILL.md)).
+- [x] **Extensión — Memoria dual con Engram:** memoria episódica semántica entre sesiones con [Engram](docs/glosario.md#engram) vía [MCP](docs/glosario.md#mcp) ([`docs/mcp/engram.json`](docs/mcp/engram.json)), skill [`skills/engram-memory/SKILL.md`](skills/engram-memory/SKILL.md) e instalador universal [`tools/install-engram.sh`](tools/install-engram.sh).

@@ -61,6 +61,9 @@ Recibes encargos del [`orchestrator`](orchestrator.md) cuando una petición requ
    - Compara cada opción con pros, contras, coste operativo y cuándo descartarla.
 4. **Mirada integral (más allá del backend):**
    - Comprueba explícitamente qué capas toca el cambio: interfaz/frontend, lógica/backend, datos/migraciones, integración con terceros, seguridad/permisos y observabilidad (logs/métricas). Declara en una línea las capas que no aplican para dejar constancia de que no se olvidaron.
+5. **Memoria episódica ([Engram](../docs/glosario.md#engram) / [`skills/engram-memory`](../skills/engram-memory/SKILL.md)):**
+   - Antes de diseñar, busca antecedentes técnicos o librerías descartadas (`engram search`).
+   - Al cerrar un [ADR](../docs/glosario.md#adr), registra el compromiso clave y su justificación (`engram save`).
 
 ---
 

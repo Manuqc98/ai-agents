@@ -59,6 +59,9 @@ Recibes tareas del [`orchestrator`](orchestrator.md) con un diseño de [`archite
    - Si el cambio incluye una migración de datos o una mitigación en circuito `quirurgico`, deja escrito y verificado el [plan de reversión](../docs/glosario.md#plan-de-reversion) antes de aplicarlo.
 4. **Comprobación de humo local (*smoke check*):**
    - Antes de devolver la tarea como lista para revisión (`REVIEW`), comprueba que el código no tiene errores de sintaxis, tipos o compilación básica.
+5. **Memoria episódica ([Engram](../docs/glosario.md#engram) / [`skills/engram-memory`](../skills/engram-memory/SKILL.md)):**
+   - Comprueba si el problema o librería tiene trucos conocidos previos (`engram search`).
+   - Al solucionar un bug difícil o no evidente, registra la causa raíz y su arreglo (`engram save`).
 
 ---
 

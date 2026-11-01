@@ -87,6 +87,7 @@ Lo que falta por aclarar: <preguntas concretas, o "nada, procedo">
    python3 tools/project-memory.py task iterate "<id>"   # Devuelve código 3 al llegar a la 3.ª vuelta
    python3 tools/project-memory.py status
    ```
+6. **Memoria episódica ([Engram](../docs/glosario.md#engram) / [`skills/engram-memory`](../skills/engram-memory/SKILL.md)):** en consultas ambiguas o tareas sobre módulos con histórico, apóyate en el servidor [MCP](../docs/glosario.md#mcp) o busca antecedentes con `engram search "<tema>"`.
 
 ---
 
