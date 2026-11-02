@@ -60,6 +60,8 @@ Intervienes en la Fase 4 de cualquier circuito tras la entrega de [`implementer`
    - **Fallo de requisito:** el código hace lo pedido pero no resuelve la necesidad del usuario → vuelve al [`orchestrator`](orchestrator.md) para consultar a la persona.
 5. **Memoria episódica ([Engram](../docs/glosario.md#engram) / [`skills/engram-memory`](../skills/engram-memory/SKILL.md)):**
    - Si detectas una trampa sutil o un caso borde no obvio en las pruebas, regístralo con `engram save` para evitar regresiones futuras.
+6. **Auditoría de sobreingeniería ([Ponytail](../skills/ponytail/SKILL.md)):**
+   - Evalúa si el cambio introduce dependencias innecesarias o boilerplate superfluo (*lean review*). Si el código está sobrecargado cuando una solución más concisa era viable, señala la simplificación en tus reservas.
 
 ---
 

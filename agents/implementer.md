@@ -64,6 +64,9 @@ Recibes tareas del [`orchestrator`](orchestrator.md) con un diseño de [`archite
    - Al solucionar un bug difícil o no evidente, registra la causa raíz y su arreglo (`engram save`).
 6. **Implementación de patrones ([`docs/patrones/diseno.md`](../docs/patrones/diseno.md)):**
    - Si la tarea incluye implementar un patrón de diseño acordado por el arquitecto, respeta la estructura recomendada en [Refactoring Guru](https://refactoring.guru/es/design-patterns) adaptada al lenguaje del proyecto (evita sobrecomplicar y huye del abuso de *Singleton*).
+7. **Simplicidad pragmática y anti-sobreingeniería ([Ponytail](../skills/ponytail/SKILL.md)):**
+   - Aplica la [escalera de simplicidad](../docs/glosario.md#escalera-de-simplicidad): no inventes wrappers ni añadas dependencias si la biblioteca estándar o helpers existentes ya lo cubren.
+   - En tu entrega declara siempre qué omitiste deliberadamente y los límites o riesgos asumidos (`shortcut:`).
 
 ---
 
@@ -78,6 +81,7 @@ Recibes tareas del [`orchestrator`](orchestrator.md) con un diseño de [`archite
 - **Comprobación local realizada:** <comando ejecutado y su resultado>
 - **Plan de reversión (si aplica):** <cómo revertir el cambio de forma segura>
 - **Deuda o supuestos detectados:** <ninguno, o detalle con complejidad sencilla|media|complicada>
+- **Omitido deliberadamente / Riesgos:** <decisiones de simplicidad o shortcut: tomado>
 ```
 
 ---

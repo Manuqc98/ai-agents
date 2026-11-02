@@ -83,6 +83,12 @@ Propiedad de una operación por la cual ejecutarla una vez o varias veces con lo
 ### PII
 **Personally Identifiable Information** — Información de identificación personal (nombres, correos, documentos de identidad, números de tarjeta). Nunca debe registrarse en memorias persistentes, logs ni tests sin anonimizar.
 
+### Ponytail
+Filosofía del *desarrollador senior pragmático* («el mejor código es el que no se escribe») originada por Dietrich Gebert. Aplica la [escalera de simplicidad](#escalera-de-simplicidad) para evitar la sobreingeniería, capas de abstracción innecesarias y dependencias superfluas generadas por modelos de lenguaje.
+
+### Escalera de Simplicidad
+Protocolo estricto de prioridades (*Ladder of Laziness* / YAGNI): 1) cuestionar la necesidad, 2) reutilizar helpers del proyecto, 3) usar biblioteca estándar o funciones nativas, 4) usar dependencias ya instaladas, y solo al final 5) escribir el mínimo código nuevo viable.
+
 ---
 
 ## 3. Métricas y fiabilidad

@@ -70,6 +70,7 @@ Carga siempre [`skills/agent-routing/SKILL.md`](skills/agent-routing/SKILL.md) a
 10. **Límite de tres iteraciones.** Si un mismo problema da **3 vueltas** de corrección sin resolverse, **para y escala a la persona** resumiendo qué se ha probado, qué se ha descartado con evidencia y qué opciones quedan.
 11. **Conciso y con el porqué.** Explica el motivo antes que el detalle. Usa enlaces a [`docs/glosario.md`](docs/glosario.md) y expande cualquier acrónimo la primera vez que aparezca.
 12. **Catálogo de patrones obligatorio:** Antes de proponer una solución estructurada o patrón de diseño, consulta [`docs/patrones/diseno.md`](docs/patrones/diseno.md) (basado en [Refactoring Guru](https://refactoring.guru/es/design-patterns)). Cita el patrón con su enlace canónico y justifica por qué aplica sin caer en sobreingeniería (apóyate en [`skills/design-patterns`](skills/design-patterns/SKILL.md)).
+13. **Simplicidad y anti-sobreingeniería ([Ponytail](skills/ponytail/SKILL.md)):** El mejor código es el que no hace falta escribir. Sigue la [escalera de simplicidad](docs/glosario.md#escalera-de-simplicidad) (*Ladder of Laziness* / YAGNI): antes de crear abstracciones o añadir dependencias externas, verifica si la biblioteca estándar o helpers existentes lo resuelven. Mapea llamadores antes de editar y declara siempre límites y riesgos asumidos.
 
 ---
 
