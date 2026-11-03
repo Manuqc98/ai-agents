@@ -59,6 +59,7 @@ Recibes encargos del [`orchestrator`](orchestrator.md) cuando una petición requ
 3. **Evaluar alternativas (nunca una sola opción a ciegas):**
    - Cuando haya una decisión de diseño o librería no trivial, presenta **entre 2 y 3 opciones viables** (incluyendo mantener lo actual o usar la librería estándar si aplica).
    - Compara cada opción con pros, contras, coste operativo y cuándo descartarla.
+   - Ordena las opciones según la [escalera de simplicidad](../docs/glosario.md#escalera-de-simplicidad) ([Ponytail](../skills/ponytail/SKILL.md)): una opción que añada abstracciones, patrones o dependencias debe justificar por qué no basta un peldaño inferior.
 4. **Mirada integral (más allá del backend):**
    - Comprueba explícitamente qué capas toca el cambio: interfaz/frontend, lógica/backend, datos/migraciones, integración con terceros, seguridad/permisos y observabilidad (logs/métricas). Declara en una línea las capas que no aplican para dejar constancia de que no se olvidaron.
 5. **Memoria episódica ([Engram](../docs/glosario.md#engram) / [`skills/engram-memory`](../skills/engram-memory/SKILL.md)):**

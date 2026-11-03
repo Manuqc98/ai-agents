@@ -84,10 +84,14 @@ Propiedad de una operación por la cual ejecutarla una vez o varias veces con lo
 **Personally Identifiable Information** — Información de identificación personal (nombres, correos, documentos de identidad, números de tarjeta). Nunca debe registrarse en memorias persistentes, logs ni tests sin anonimizar.
 
 ### Ponytail
-Filosofía del *desarrollador senior pragmático* («el mejor código es el que no se escribe») originada por Dietrich Gebert. Aplica la [escalera de simplicidad](#escalera-de-simplicidad) para evitar la sobreingeniería, capas de abstracción innecesarias y dependencias superfluas generadas por modelos de lenguaje.
+Filosofía del *desarrollador senior pragmático* («el mejor código es el que no hace falta escribir») creada por Dietrich Gebert ([repositorio original](https://github.com/DietrichGebert/ponytail), licencia MIT) y adaptada en [`skills/ponytail`](../skills/ponytail/SKILL.md). Aplica la [escalera de simplicidad](#escalera-de-simplicidad) para evitar la sobreingeniería, capas de abstracción innecesarias y dependencias superfluas generadas por modelos de lenguaje.
 
 ### Escalera de Simplicidad
-Protocolo estricto de prioridades (*Ladder of Laziness* / YAGNI): 1) cuestionar la necesidad, 2) reutilizar helpers del proyecto, 3) usar biblioteca estándar o funciones nativas, 4) usar dependencias ya instaladas, y solo al final 5) escribir el mínimo código nuevo viable.
+Orden de prioridades de [Ponytail](#ponytail) (*Ladder of Laziness*): se toma la primera opción que resuelva la tarea completa: 1) cuestionar si tiene que existir ([YAGNI](#yagni)), 2) reutilizar lo que ya tiene el proyecto, 3) usar la biblioteca estándar o la plataforma, 4) usar dependencias ya instaladas, 5) dejarlo en una línea legible de un vistazo y 6) escribir el mínimo código nuevo que funcione.
+
+### YAGNI
+**You Aren't Gonna Need It** — «No lo vas a necesitar».
+Principio que descarta construir funcionalidades, opciones o abstracciones para necesidades hipotéticas: se implementa solo lo que hace falta hoy.
 
 ---
 

@@ -65,8 +65,8 @@ Recibes tareas del [`orchestrator`](orchestrator.md) con un diseño de [`archite
 6. **Implementación de patrones ([`docs/patrones/diseno.md`](../docs/patrones/diseno.md)):**
    - Si la tarea incluye implementar un patrón de diseño acordado por el arquitecto, respeta la estructura recomendada en [Refactoring Guru](https://refactoring.guru/es/design-patterns) adaptada al lenguaje del proyecto (evita sobrecomplicar y huye del abuso de *Singleton*).
 7. **Simplicidad pragmática y anti-sobreingeniería ([Ponytail](../skills/ponytail/SKILL.md)):**
-   - Aplica la [escalera de simplicidad](../docs/glosario.md#escalera-de-simplicidad): no inventes wrappers ni añadas dependencias si la biblioteca estándar o helpers existentes ya lo cubren.
-   - En tu entrega declara siempre qué omitiste deliberadamente y los límites o riesgos asumidos (`shortcut:`).
+   - Aplica la [escalera de simplicidad](../docs/glosario.md#escalera-de-simplicidad): además de no añadir librerías (paso 2), no inventes wrappers, opciones ni abstracciones que nadie ha pedido, y respeta [lo que nunca se recorta](../skills/ponytail/SKILL.md#23-lo-que-nunca-se-recorta).
+   - Marca cada atajo con límite conocido con un comentario `shortcut:` en el código y decláralo, junto con lo omitido, en las dos últimas líneas de tu entregable.
 
 ---
 
@@ -80,8 +80,8 @@ Recibes tareas del [`orchestrator`](orchestrator.md) con un diseño de [`archite
   - `<ruta/al/fichero>` — <qué se cambió y por qué en una línea>
 - **Comprobación local realizada:** <comando ejecutado y su resultado>
 - **Plan de reversión (si aplica):** <cómo revertir el cambio de forma segura>
-- **Deuda o supuestos detectados:** <ninguno, o detalle con complejidad sencilla|media|complicada>
-- **Omitido deliberadamente / Riesgos:** <decisiones de simplicidad o shortcut: tomado>
+- **Omitido deliberadamente:** <qué se descartó por no hacer falta y por qué, o «nada»>
+- **Riesgos o límites asumidos:** <supuestos, casos borde y deuda (cada `shortcut:`) con complejidad sencilla|media|complicada, o «ninguno»>
 ```
 
 ---

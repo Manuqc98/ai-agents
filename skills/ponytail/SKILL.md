@@ -1,7 +1,7 @@
 ---
 name: ponytail
-description: "Modo senior pragmático anti-sobreingeniería y escalera de simplicidad (Ladder of Laziness / YAGNI). Úsala al implementar, refactorizar, auditar cambios o elegir dependencias para lograr la solución más pequeña y completa posible sin código innecesario ni wrappers superfluos."
-version: 1.0.0
+description: "Simplicidad pragmática y anti-sobreingeniería con la escalera de simplicidad (YAGNI, You Aren't Gonna Need It: «no lo vas a necesitar»). Cárgala al implementar, refactorizar, elegir dependencias, comparar opciones de diseño o auditar un cambio, para lograr la solución más pequeña que resuelva la tarea completa sin wrappers, abstracciones ni dependencias superfluas."
+version: 1.1.0
 license: MIT
 tags: [yagni, simplicity, clean-code, anti-overengineering, refactoring, quality]
 related_skills: [design-patterns, agent-routing]
@@ -9,74 +9,78 @@ related_skills: [design-patterns, agent-routing]
 
 # Simplicidad Pragmática y Anti-Sobreingeniería (`ponytail`)
 
-Inspirada en el principio del desarrollador senior pragmático: **«El mejor código es el que no hace falta escribir»**.
-Esta *skill* provee el protocolo para resolver el problema completo con el menor volumen de código nuevo, previniendo la *patternitis* y la complejidad accidental.
+Resuelve el problema completo con el menor volumen de código nuevo: **«El mejor código es el que no hace falta escribir»**. Deja fuera la *patternitis* y la complejidad accidental, nunca la calidad (§2.3).
+
+> **Origen y licencia:** adaptación al español de [Ponytail](https://github.com/DietrichGebert/ponytail) (a partir de la versión 5.3.3), © 2026 DietrichGebert, con licencia MIT ([`LICENSE`](LICENSE)). Si tu cliente carga también el plugin original, en este repositorio manda esta adaptación.
+
+## Cuándo cargarla
+
+- Vas a escribir, modificar o refactorizar código, configuración o migraciones.
+- Hay que elegir entre añadir una dependencia, abstracción o patrón y algo más sencillo.
+- Auditas un cambio ajeno (QA o revisión) para ver si sobra o falta algo.
 
 ---
 
-## 1. Antes de escribir una sola línea (Mapeo de alcance)
+## 1. Puerta de decisión (¿aplica aquí?)
 
-Lee con atención la tarea y el código que va a tocar:
-1. **Lista todos los puntos afectados:** llamadores directos e indirectos, tests existentes, fixtures, configuraciones, exportaciones e interfaces.
+- **¿El trabajo produce o cambia código?** Si es solo una consulta, una clasificación o un informe, no apliques el cierre de §3.
+- **¿La persona pidió explícitamente la versión completa o flexible?** Lo pedido es alcance: la escalera recorta lo especulativo, nunca lo solicitado.
+
+## 2. Procedimiento
+
+### 2.1 Replanteo y alcance
+
+Antes de escribir, haz el [replanteo](../../docs/glosario.md#replanteo) del código que vas a tocar y fija el alcance:
+1. **Lista todos los puntos afectados:** llamadores directos e indirectos, tests, fixtures, configuración, exportaciones e interfaces. **Todos forman parte del cambio** y quedan actualizados: el diff mínimo no deja nada roto.
 2. **Evalúa qué podría romperse:** datos expuestos o alterados, consumidores que queden desalineados.
-3. **Fija el alcance:** el alcance es resolver la necesidad respetando lo que ya existe. Las funcionalidades extra no pedidas o las abstracciones especulativas **no son parte del alcance**.
+3. **Fija el alcance:** resolver la necesidad respetando la estructura existente (capas, interfaces, convenciones). Las funcionalidades no pedidas y las abstracciones especulativas **no son alcance**.
 
----
+### 2.2 Escalera de simplicidad
 
-## 2. La Escalera de Simplicidad (*Ladder of Laziness* / YAGNI)
+Toma la **primera opción que resuelva la tarea por completo** ([escalera de simplicidad](../../docs/glosario.md#escalera-de-simplicidad)):
 
-Toma siempre la **primera opción viable** de la lista antes de pasar a la siguiente:
+1. **¿Tiene que existir? ([YAGNI](../../docs/glosario.md#yagni)):** descarta opciones, configuraciones y flexibilidad que nadie ha pedido, y nómbralas en una línea. Si la petición es vaga, construye la versión más pequeña que resuelva el núcleo.
+2. **¿Ya existe en el proyecto?** Usa el helper, servicio, componente o convención tal como lo usa el código circundante.
+3. **¿Lo cubre la biblioteca estándar o la plataforma?** Úsala antes de inventar utilidades caseras.
+4. **¿Lo resuelve una dependencia ya instalada?** Úsala. **Prohibido añadir una dependencia nueva** para algo que se hace en pocas líneas.
+5. **¿Cabe en una línea que se entiende de un vistazo?** Déjalo en una línea.
+6. **Si no:** el mínimo código que funcione.
 
-```mermaid
-graph TD
-    P1["1. ¿Tiene que existir? (YAGNI)"] -->|No existe justificación| Descartar["Descartar o resolver con lo existente"]
-    P1 -->|Sí, es indispensable| P2["2. Reutilizar código del proyecto"]
-    P2 -->|No hay helper/patrón previo| P3["3. Biblioteca estándar / Plataforma"]
-    P3 -->|La stdlib no lo cubre| P4["4. Dependencia ya instalada"]
-    P4 -->|No hay paquete instalado| P5["5. Mínimo código directo viable"]
-```
+Desempates: gana la menor diferencia (*diff*) completa, pero una línea críptica no es concisión; entre opciones de tamaño parecido, elige la que es correcta en los casos borde.
 
-1. **¿Tiene que existir? (YAGNI estricto):**
-   - Descarta opciones, configuraciones y flexibilidad que nadie ha solicitado.
-   - Si una petición es vaga o amplia, construye la versión más concisa que resuelva el núcleo del problema.
-2. **Reutiliza lo que ya hay en el repositorio:**
-   - Si el proyecto ya tiene un helper, servicio, componente o convención para esto, úsalo tal como lo hace el código circundante.
-3. **Biblioteca estándar y funciones nativas:**
-   - Usa las capacidades del lenguaje y la plataforma antes de inventar utilidades o estructuras caseras.
-4. **Dependencias ya instaladas:**
-   - Si una librería del `package.json`, `pyproject.toml` o `requirements.txt` ya lo resuelve, úsala.
-   - **Prohibido añadir una dependencia externa nueva** para resolver algo que se hace en pocas líneas con código estándar.
-5. **Concisión y legibilidad:**
-   - Si se resuelve limpiamente en una línea que cualquiera comprende de un vistazo, déjalo en una línea.
-6. **Mínimo código viable:**
-   - La menor diferencia (*diff*) funcionalmente completa gana. Una línea ilegible o críptica no es concisión.
+### 2.3 Lo que NUNCA se recorta
 
----
-
-## 3. Reglas innegociables: Lo que NUNCA se recorta
-
-La simplicidad no es descuido. Hay aspectos que **nunca se omiten ni se simplifican a la baja**:
-- **Validación en fronteras de confianza:** Entradas de usuario, APIs externas, deserialización y permisos.
-- **Manejo de errores crítico:** Prevención de pérdida de datos, transacciones y fallos silenciosos.
-- **Seguridad:** Criptografía, sanitización contra inyecciones y control de acceso.
+La simplicidad no es descuido. Nunca se omite ni se simplifica a la baja:
+- **Validación en fronteras de confianza:** entradas de usuario, servicios externos, deserialización y permisos.
+- **Manejo de errores crítico:** pérdida de datos, transacciones y fallos silenciosos. El código que mueves o fusionas **conserva su validación y su manejo de errores**.
+- **Seguridad:** criptografía, sanitización contra inyecciones y control de acceso.
 - **Accesibilidad y cumplimiento normativo.**
-- **Criterios de aceptación pedidos:** Todo lo solicitado explícitamente debe cumplirse y verificarse.
+- **Criterios de aceptación pedidos:** todo lo solicitado se cumple y se verifica.
+- **Su comprobación:** la lógica nueva no trivial (una rama, un bucle, un parser, dinero o seguridad) deja al menos un test pequeño o una autocomprobación con aserciones. Los cambios triviales no la necesitan.
+
+### 2.4 Atajos declarados (`shortcut:`)
+
+Si tomas un atajo consciente con un límite conocido, márcalo en el código con un comentario en la sintaxis del lenguaje (`//`, `#`, `--`, `<!-- -->`, `"`…) y este contenido:
+
+```text
+shortcut: <límite exacto>, <cuándo o bajo qué condición actualizar>, <sencilla|media|complicada>
+```
+
+Es [deuda técnica](../../docs/glosario.md#deuda-tecnica) declarada: lista también cada `shortcut:` en el cierre del entregable.
 
 ---
 
-## 4. Gestión de atajos y deuda declarada (`shortcut:`)
+## 3. Formato del entregable
 
-Si por pragmatismo tomas un atajo consciente con un límite técnico conocido, déjalo documentado en el código mediante un comentario con este formato exacto:
+Toda entrega que cambie código cierra con estas dos líneas:
+
+```text
+- **Omitido deliberadamente:** <qué se descartó (YAGNI) y por qué, o «nada»>
+- **Riesgos o límites asumidos:** <supuestos, casos borde y deuda (cada `shortcut:`) con complejidad sencilla|media|complicada, o «ninguno»>
 ```
-// shortcut: <límite exacto>, <cuándo o bajo qué condición actualizar>
-# shortcut: <límite exacto>, <cuándo o bajo qué condición actualizar>
-```
-Así la deuda queda identificada y no se confunde con descuido.
 
----
+## 4. Errores frecuentes a evitar
 
-## 5. Cierre obligatorio del entregable
-
-Toda respuesta o entrega de implementación que aplique Ponytail concluye con estas dos líneas explícitas:
-- **Omitido deliberadamente:** qué decisiones o complejidades se descartaron y por qué.
-- **Riesgos o límites asumidos:** qué condiciones de borde o supuestos debe conocer el revisor.
+- **Recortar calidad para encoger el diff:** quitar validación, manejo de errores o el test de la lógica nueva. Repasa §2.3 antes de entregar.
+- **Diff mínimo pero incompleto:** cambiar una firma y dejar llamadores, fixtures o tests sin actualizar (§2.1).
+- **Concisión críptica:** una línea que hay que descifrar no es simple; escribe la versión legible.

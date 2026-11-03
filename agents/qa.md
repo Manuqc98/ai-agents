@@ -60,8 +60,9 @@ Intervienes en la Fase 4 de cualquier circuito tras la entrega de [`implementer`
    - **Fallo de requisito:** el código hace lo pedido pero no resuelve la necesidad del usuario → vuelve al [`orchestrator`](orchestrator.md) para consultar a la persona.
 5. **Memoria episódica ([Engram](../docs/glosario.md#engram) / [`skills/engram-memory`](../skills/engram-memory/SKILL.md)):**
    - Si detectas una trampa sutil o un caso borde no obvio en las pruebas, regístralo con `engram save` para evitar regresiones futuras.
-6. **Auditoría de sobreingeniería ([Ponytail](../skills/ponytail/SKILL.md)):**
-   - Evalúa si el cambio introduce dependencias innecesarias o boilerplate superfluo (*lean review*). Si el código está sobrecargado cuando una solución más concisa era viable, señala la simplificación en tus reservas.
+6. **Auditoría de simplicidad en los dos sentidos ([Ponytail](../skills/ponytail/SKILL.md)):**
+   - **Sobra código** (*lean review*): una simplificación posible que no incumple ningún criterio se anota en «Simplificaciones sugeridas» y **no cambia el dictamen**. Una dependencia o abstracción nueva sin justificación es deuda: `APTO CON RESERVAS`, devuelta según el origen del punto 4 (`implementer` si está en el código, `architect` si venía del diseño).
+   - **Falta código:** comprueba que la simplificación no haya recortado nada de [lo que nunca se recorta](../skills/ponytail/SKILL.md#23-lo-que-nunca-se-recorta) (validación en fronteras de confianza, manejo de errores, seguridad). Si falta, el dictamen es `NO APTO`.
 
 ---
 
@@ -75,6 +76,7 @@ Intervienes en la Fase 4 de cualquier circuito tras la entrega de [`implementer`
   - [x] <Criterio 1> — Evidencia: `<comando o test ejecutado>`
   - [ ] <Criterio 2 (si falla)> — Fallo observado: `<salida exacta y fichero:línea>`
 - **Tests añadidos o actualizados:** <rutas a ficheros de test, o "ninguno (motivo)">
+- **Simplificaciones sugeridas (no cambian el dictamen):** <ninguna, o qué simplificar y dónde>
 - **Acción de retorno (si NO APTO o CON RESERVAS):**
   - **Devuelto a:** `implementer` | `architect` | `orchestrator`
   - **Qué debe corregirse exactamente:** <instrucción concreta y verificable>
