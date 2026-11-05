@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validador determinista del repositorio ai-agents (sin red y sin dependencias externas).
 
-Ejecuta cuatro baterías de comprobación:
+Ejecuta cinco baterías de comprobación:
   enlaces       Verifica que todo enlace relativo en ficheros .md exista (incluyendo #anclas).
   frontmatter   Verifica que agentes, skills y specs cumplan el esquema de metadatos.
   portabilidad  Verifica las reglas Multi-LLM y Multi-Harness:
@@ -10,6 +10,8 @@ Ejecuta cuatro baterías de comprobación:
                   3. Ningún agente ni skill tiene modelos concretos clavados ni bloques propietarios.
   clasificacion Verifica que los casos de tests/clasificacion.md concuerden con la tabla
                 canónica de skills/agent-routing/SKILL.md.
+  diversidad    Verifica que, según docs/LLM.md, security-reviewer se resuelva a un proveedor
+                distinto del de implementer (revisión sin sesgo de confirmación).
 
 Uso:
   python3 tools/check-repo.py
@@ -304,11 +306,49 @@ def comprobar_clasificacion():
     return fallos
 
 
+# --- 5. Diversidad de proveedor ----------------------------------------------
+
+def proveedor_efectivo(config, agente, nivel):
+    """Resuelve el proveedor de un agente: override en `agentes:` > su `nivel-modelo` > `default`."""
+    complejidad, _, agentes = config.partition("\nagentes:")
+    override = re.search(rf"^\s+{re.escape(agente)}:\s*([\w-]+)/", agentes, re.M)
+    if override:
+        return override.group(1)
+    if nivel:
+        por_nivel = re.search(rf"^\s+{re.escape(nivel)}:\s*([\w-]+)/", complejidad, re.M)
+        if por_nivel:
+            return por_nivel.group(1)
+    por_defecto = re.search(r"^default:\s*([\w-]+)/", config, re.M)
+    return por_defecto.group(1) if por_defecto else None
+
+
+def comprobar_diversidad():
+    bloque = re.search(r"```yaml\n(.*?)```", (RAIZ / "docs" / "LLM.md").read_text(encoding="utf-8"), re.S)
+    if not bloque:
+        return ["docs/LLM.md: no se encontró el bloque ```yaml con la configuración activa"]
+    proveedores = {}
+    for agente in ("implementer", "security-reviewer"):
+        ruta = RAIZ / "agents" / f"{agente}.md"
+        if not ruta.exists():
+            return [f"Falta agents/{agente}.md, necesario para comprobar la diversidad de proveedor"]
+        nivel = campo(frontmatter(ruta)[0], "nivel-modelo")
+        proveedores[agente] = proveedor_efectivo(bloque.group(1), agente, nivel)
+    if None in proveedores.values():
+        return [f"docs/LLM.md: no se pudo resolver el proveedor de {proveedores}"]
+    if proveedores["implementer"] == proveedores["security-reviewer"]:
+        return [
+            f"docs/LLM.md: implementer y security-reviewer se resuelven al mismo proveedor "
+            f"({proveedores['implementer']}); fija otro en `agentes:` (ver §5 de LLM.md)"
+        ]
+    return []
+
+
 COMPROBACIONES = {
     "enlaces": comprobar_enlaces,
     "frontmatter": comprobar_frontmatter,
     "portabilidad": comprobar_portabilidad,
     "clasificacion": comprobar_clasificacion,
+    "diversidad": comprobar_diversidad,
 }
 
 

@@ -17,7 +17,7 @@ Un sistema modular de agentes, *skills* (habilidades) y *specs* (especificacione
 | `skills/` | **Qué saber**: metodologías y formatos que se cargan solo cuando hacen falta | Ahorrar ventana de contexto en cualquier modelo |
 | `specs/` | **El itinerario**: guiones paso a paso para definir negocio o arquitectura | No programar a ciegas en tareas grandes |
 | `docs/` | **La memoria estática**: [`glosario.md`](docs/glosario.md), [`LLM.md`](docs/LLM.md), [`patrones/`](docs/patrones/README.md) y [`plantillas/`](docs/plantillas/) | Vocabulario común, configuración multi-modelo y catálogo de patrones |
-| `tools/` | **El control determinista**: scripts que validan y persisten el estado | No fiar a la memoria del LLM lo que puede comprobar un script |
+| `tools/` | **El control determinista**: scripts que validan, persisten el estado y calculan la [puerta de riesgo](docs/glosario.md#puerta-de-riesgo) | No fiar a la memoria del LLM lo que puede comprobar un script |
 
 ### El equipo base (`agents/`)
 
@@ -27,6 +27,7 @@ Un sistema modular de agentes, *skills* (habilidades) y *specs* (especificacione
 | [`architect`](agents/architect.md) | **Arquitecto**: traduce requisitos ambiguos, hace [replanteo](docs/glosario.md#replanteo), compara opciones y escribe [ADRs](docs/glosario.md#adr) | `complicada` | No |
 | [`implementer`](agents/implementer.md) | **Implementador**: escribe código y migraciones respetando el proyecto y con [plan de reversión](docs/glosario.md#plan-de-reversion) | `media` | Sí |
 | [`qa`](agents/qa.md) | **Verificador independiente**: comprueba criterios de aceptación con evidencia real, añade tests y emite dictamen | `media` | Solo tests |
+| [`security-reviewer`](agents/security-reviewer.md) | **Revisor de seguridad**: revisa el diff en paralelo con `qa` cuando lo exige la [puerta de riesgo](docs/glosario.md#puerta-de-riesgo), con un proveedor distinto al de `implementer` | `complicada` | No |
 
 ---
 
@@ -102,5 +103,5 @@ devuelve-si: <condición explícita bajo la cual el receptor DEBE rechazar el tr
 - **`description` orientada al disparador:** en cualquier *skill* o agente, el campo `description` debe explicar **cuándo activarlo**, no solo qué contiene.
 - **Skills grandes divididas en dos capas:** el método principal va en `SKILL.md` (ligero para no saturar el contexto de modelos pequeños) y las plantillas o catálogos extensos van en una subcarpeta `references/`.
 - **Memoria operativa vs. episódica:** para el plan y corte determinista a las 3 vueltas usa [`tools/project-memory.py`](tools/project-memory.py) sobre [`.agents/schema.sql`](.agents/schema.sql); para aprendizajes acumulados entre sesiones y búsqueda semántica apóyate en [Engram](docs/glosario.md#engram) con [`skills/engram-memory`](skills/engram-memory/SKILL.md) o [MCP](docs/glosario.md#mcp) ([`docs/mcp/engram.json`](docs/mcp/engram.json)).
-- **Validación automática antes de cerrar:** ejecuta siempre `python3` [`tools/check-repo.py`](tools/check-repo.py) para comprobar enlaces (incluidas `#anclas`), frontmatter, batería de [`tests/clasificacion.md`](tests/clasificacion.md) y reglas de **portabilidad multi-LLM** (que ningún agente o *skill* tenga modelos hardcodeados ni le falten las directivas en texto plano).
+- **Validación automática antes de cerrar:** ejecuta siempre `python3` [`tools/check-repo.py`](tools/check-repo.py) para comprobar enlaces (incluidas `#anclas`), frontmatter, batería de [`tests/clasificacion.md`](tests/clasificacion.md), reglas de **portabilidad multi-LLM** (que ningún agente o *skill* tenga modelos hardcodeados ni le falten las directivas en texto plano) y **diversidad de proveedor** entre `implementer` y `security-reviewer`. Si tocas `tools/`, ejecuta también `python3 -m unittest discover tests`.
 - **Commits en español e imperativo** con prefijo semántico: `agent:`, `skill:`, `spec:`, `docs:`, `tool:`, `chore:`.

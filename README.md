@@ -25,11 +25,12 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 ├── README.md                  # Visión general, principios de portabilidad y hoja de ruta
 ├── .agents/
 │   └── schema.sql             # Esquema SQLite de 4 tablas (tareas, notas, decisiones, uso de modelos)
-├── agents/                    # Equipo mínimo viable de 4 roles (Iteración 2)
-│   ├── orchestrator.md        # Coordinador: clasifica, delega, controla bucles y reporta
+├── agents/                    # Equipo base de 4 roles (Iteración 2) + revisor de seguridad
+│   ├── orchestrator.md        # Coordinador: clasifica, delega, controla bucles, consolida dictámenes y reporta
 │   ├── architect.md           # Arquitecto: requisitos medibles, opciones, replanteo y ADRs
 │   ├── implementer.md         # Implementador: código limpio, cambio mínimo y plan de reversión
-│   └── qa.md                  # Verificador independiente: pruebas, evidencias y dictamen
+│   ├── qa.md                  # Verificador independiente: pruebas, evidencias y dictamen
+│   └── security-reviewer.md   # Revisor de seguridad: diff en paralelo con qa y con otro proveedor
 ├── skills/                    # Conocimiento modular cargado bajo demanda
 │   ├── agent-routing/         # Clasificación de peticiones, circuitos y contrato de traspaso
 │   ├── design-patterns/       # Selección y triaje de patrones de diseño (Refactoring Guru)
@@ -47,7 +48,7 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 │   ├── clasificacion.md       # Batería de 15 casos de regresión del enrutado (Tipo × Severidad)
 │   └── test_risk_gate.py      # Pruebas de la puerta de riesgo sobre repositorios git temporales
 └── tools/
-    ├── check-repo.py          # Validador determinista: enlaces+#anclas, frontmatter, portabilidad multi-LLM y clasificación
+    ├── check-repo.py          # Validador determinista: enlaces+#anclas, frontmatter, portabilidad multi-LLM, clasificación y diversidad de proveedor
     ├── install-engram.sh      # Instalador automático y compilado del binario de Engram
     ├── project-memory.py      # Gestor de memoria SQLite: tareas, corte a las 3 vueltas, ADRs y uso multi-LLM
     └── risk-gate.py           # Puerta de riesgo: nivel bajo/alto de un diff según rutas sensibles, contenido sensible y tamaño
@@ -63,6 +64,7 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 | [`architect`](agents/architect.md) | Aterriza requisitos, hace [replanteo](docs/glosario.md#replanteo), compara opciones y redacta [ADRs](docs/glosario.md#adr) | `complicada` | **No** (`edit`/`write` denegados) |
 | [`implementer`](agents/implementer.md) | Implementa cambios acotados, migraciones y correcciones con comprobación local | `media` | **Sí** (no firma su propio QA) |
 | [`qa`](agents/qa.md) | Verifica criterios de aceptación con evidencias reales, añade tests y emite dictamen | `media` | **Solo tests** (prohibido tocar código de producción) |
+| [`security-reviewer`](agents/security-reviewer.md) | Revisa la seguridad del diff en paralelo con `qa` cuando lo exige la [puerta de riesgo](docs/glosario.md#puerta-de-riesgo), con un proveedor distinto al de `implementer` | `complicada` | **No** (`edit`/`write` denegados) |
 
 ---
 
@@ -76,6 +78,9 @@ Toda petición pasa primero por [`skills/agent-routing/SKILL.md`](skills/agent-r
                   ├─► Quirúrgico : Incidencia bloqueante (mitigar → verificar → documentar)
                   ├─► Conciso    : Cambio acotado o consulta (ejecutar → verificar)
                   └─► Completo   : solution-design-spec (Problema → Arquitectura → Plan SQLite → Código → QA)
+
+[Entrega en REVIEW] ──► risk-gate.py ──► bajo : qa
+                                     └─► alto : qa + security-reviewer (en paralelo) ──► orchestrator consolida
 ```
 
 ---
@@ -90,3 +95,4 @@ Toda petición pasa primero por [`skills/agent-routing/SKILL.md`](skills/agent-r
 - [x] **Extensión — Catálogo canónico de patrones:** los 22 patrones GoF indexados a [Refactoring Guru](docs/patrones/diseno.md), regla obligatoria en [`AGENTS.md`](AGENTS.md) y skill de triaje [`skills/design-patterns/SKILL.md`](skills/design-patterns/SKILL.md).
 - [x] **Extensión — Simplicidad pragmática con Ponytail:** skill nativa del repositorio ([`skills/ponytail/SKILL.md`](skills/ponytail/SKILL.md)), adaptación al español de [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) (MIT), regla 13 en [`AGENTS.md`](AGENTS.md) y directivas en [`architect`](agents/architect.md), [`implementer`](agents/implementer.md) y [`qa`](agents/qa.md). El plugin original es opcional y se instala en cada cliente según su [guía](https://github.com/DietrichGebert/ponytail#install).
 - [x] **Extensión — Puerta de riesgo determinista:** [`tools/risk-gate.py`](tools/risk-gate.py) calcula el nivel `bajo`/`alto` de un diff a partir de rutas sensibles, palabras sensibles en las líneas añadidas y tamaño (con [pruebas](tests/test_risk_gate.py)), y sustituye la decisión del LLM sobre cuánto revisar.
+- [x] **Extensión — Revisión de seguridad independiente:** [`security-reviewer`](agents/security-reviewer.md) revisa en paralelo con `qa` y con un proveedor distinto ([`docs/LLM.md`](docs/LLM.md#5-diversidad-de-proveedor-en-revision), comprobado por `check-repo.py --solo diversidad`); el [`orchestrator`](agents/orchestrator.md#consolidacion-de-dictamenes) consolida los dictámenes.

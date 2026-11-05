@@ -1,7 +1,7 @@
 ---
 name: agent-routing
-description: Clasifica cualquier petición entrante (Tipo × Severidad), decide el circuito de trabajo (quirurgico, conciso o completo), define el contrato de traspaso (handoff) entre agentes y regula las condiciones de rechazo y el límite de 3 iteraciones. Cárgala SIEMPRE al recibir una petición nueva, al cambiar la naturaleza de una tarea en curso o antes de delegar en otro agente.
-version: 1.0.0
+description: Clasifica cualquier petición entrante (Tipo × Severidad), decide el circuito de trabajo (quirurgico, conciso o completo), define el contrato de traspaso (handoff) entre agentes, regula las condiciones de rechazo y el límite de 3 iteraciones y decide quién revisa cada cambio con la puerta de riesgo. Cárgala SIEMPRE al recibir una petición nueva, al cambiar la naturaleza de una tarea en curso, antes de delegar en otro agente o cuando implementer entrega en REVIEW.
+version: 1.1.0
 license: MIT
 tags: [routing, orchestration, triage, handoff, workflow]
 related_skills: []
@@ -9,10 +9,11 @@ related_skills: []
 
 # Enrutado de peticiones y contrato entre agentes (`agent-routing`)
 
-Esta *skill* resuelve únicamente dos decisiones:
+Esta *skill* resuelve únicamente tres decisiones:
 
 1. **¿Qué camino recorre esta petición y quién interviene?** → Clasificación y circuito.
 2. **¿Con qué contrato pasa el testigo de un paso al siguiente?** → Contrato de traspaso (*handoff*).
+3. **¿Quién revisa el cambio antes de cerrarlo?** → Puerta de riesgo y revisión en paralelo.
 
 ---
 
@@ -128,3 +129,29 @@ Si dos roles intercambian el mismo `id` **tres veces** sin converger:
    - Qué se intentó en las 3 vueltas.
    - Qué hipótesis se descartaron y con qué evidencia.
    - Qué decisión humana se necesita para desbloquear.
+
+---
+
+## 5. Revisión en paralelo y puerta de riesgo
+
+Cuando `implementer` entrega en `REVIEW`, la profundidad de la revisión la decide un hecho comprobable y no la impresión del modelo.
+
+1. **Calcula la [puerta de riesgo](../../docs/glosario.md#puerta-de-riesgo)** sobre el repositorio objetivo:
+   ```bash
+   python3 tools/risk-gate.py --repo <ruta-del-proyecto> --base <rama-base>
+   # Sale con 0 (bajo), 2 (alto) o 1 (error: no se pudo calcular)
+   ```
+2. **Elige quién revisa:**
+
+   | Condición | Revisores (en paralelo y sin ver el informe del otro) |
+   |---|---|
+   | Ninguna de las siguientes | `qa` |
+   | `risk-gate.py` devuelve `alto` (código 2) | `qa` + `security-reviewer` |
+   | El contrato o la Fase 0 detectan [PII](../../docs/glosario.md#pii) o pagos | `qa` + `security-reviewer` |
+   | La petición es una incidencia de seguridad (fuga de secretos, acceso indebido, inyección) | `qa` + `security-reviewer` |
+   | `risk-gate.py` falla (código 1) | Se trata como `alto` y se declara |
+
+3. **Sentido único:** el nivel puede **subirse** con un motivo escrito (por ejemplo, un cambio pequeño en lógica de permisos que ningún patrón captura), **nunca bajarse**. Si un patrón da falsos positivos recurrentes en un proyecto, se ajusta su `.agents/rutas-sensibles.txt`; no se ignora el resultado.
+4. **La puerta no decide si interviene una persona:** publicar o fusionar el cambio ya exige su confirmación explícita (regla 6 de [`AGENTS.md`](../../AGENTS.md)). Decide cuánto se revisa y dónde mirar: con `alto`, si el cambio va en una PR (*pull request*), su descripción enumera los motivos de la puerta.
+
+La consolidación de los dictámenes la hace el [`orchestrator`](../../agents/orchestrator.md#consolidacion-de-dictamenes).

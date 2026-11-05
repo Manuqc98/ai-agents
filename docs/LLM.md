@@ -25,6 +25,7 @@ complejidad:
 agentes: {}
   # orchestrator: google/gemini-3.1-pro
   # docs-writer:  local/qwen3-coder-32b
+  # security-reviewer: openai/gpt-6.1-sol   # proveedor distinto al de implementer (ver §5)
 ```
 
 ---
@@ -64,3 +65,14 @@ Cuando se ejecuta una tarea o se invoca a un subagente, el modelo efectivo se de
 5. **`default`:** el modelo por defecto si ninguna regla anterior aplica.
 
 **Regla de conflicto:** si el agente tiene nivel `sencilla` pero la tarea se ha clasificado como `complicada`, no se asume en silencio: **se pregunta a la persona** o se eleva al nivel superior de la tarea.
+
+---
+
+## 5. Diversidad de proveedor en revisión
+
+Un revisor que comparte modelo con quien escribió el código tiende a compartir también sus puntos ciegos (sesgo de confirmación). Por eso:
+
+- [`security-reviewer`](../agents/security-reviewer.md) debe resolverse a un **proveedor distinto** del de [`implementer`](../agents/implementer.md) según el [orden de resolución](#4-orden-de-resolucion). Con la configuración de §1 ya ocurre: `media` va a google y `complicada` a anthropic.
+- Si cambias la configuración, mantén esa diferencia o fija el revisor en `agentes:`. `python3 tools/check-repo.py --solo diversidad` falla si los dos acaban en el mismo proveedor.
+- **Si solo tienes un proveedor disponible**, la revisión no se bloquea: el informe lo declara como «diversidad no disponible» y el contexto limpio (solo contrato y diff) sigue aplicando.
+- Una indicación manual en la conversación gana a esta configuración (paso 1 del orden de resolución). Por eso el [`orchestrator`](../agents/orchestrator.md) compara además el proveedor que declara el informe de `security-reviewer` con el que usó para `implementer` (registrado con `python3 tools/project-memory.py usage`).

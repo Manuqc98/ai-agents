@@ -43,6 +43,9 @@ Comprobación de solo lectura que contrasta un plan o diseño contra la realidad
 ### Plan de reversión
 Procedimiento concreto y verificado para deshacer un cambio destructivo, migración o mitigación en caso de fallo, escrito **antes** de aplicar la acción.
 
+### Puerta de riesgo
+Cálculo determinista del nivel de riesgo de un cambio (`bajo` | `alto`) a partir de su diff: rutas sensibles tocadas (secretos, autenticación, pagos, migraciones, dependencias, CI e infraestructura), líneas añadidas que mencionan tokens, contraseñas o credenciales, y tamaño. Lo calcula [`tools/risk-gate.py`](../tools/risk-gate.py), no el criterio de un modelo, y decide si [`security-reviewer`](../agents/security-reviewer.md) se suma a la revisión. El LLM puede subir el nivel con un motivo, nunca bajarlo.
+
 ### Memoria Operativa
 Seguimiento estructurado y determinista del plan de trabajo (tareas, estados `TODO`/`WIP`/`DONE`, corte a las 3 vueltas y consumo de modelos por proveedor), persistido en SQLite mediante [`tools/project-memory.py`](../tools/project-memory.py).
 
