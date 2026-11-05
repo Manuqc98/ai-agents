@@ -37,6 +37,7 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 │   ├── engram-memory/         # Memoria episódica y semántica persistente (Engram vía MCP/CLI)
 │   └── ponytail/              # Simplicidad pragmática y anti-sobreingeniería (escalera de simplicidad)
 ├── specs/                     # Guiones interactivos por fases (Iteración 4)
+│   ├── codebase-onboarding/   # Genera el brain (docs/ + Engram) de un repositorio desconocido
 │   └── solution-design-spec/  # Guion SDD en 4 fases para el circuito completo
 ├── docs/
 │   ├── LLM.md                 # Política de modelos multi-proveedor por nivel de complejidad
@@ -45,7 +46,7 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 │   ├── patrones/              # Catálogo canónico de patrones (22 patrones GoF indexados)
 │   └── plantillas/            # Plantillas neutras para crear nuevos agentes y skills
 ├── tests/
-│   ├── clasificacion.md       # Batería de 15 casos de regresión del enrutado (Tipo × Severidad)
+│   ├── clasificacion.md       # Batería de 16 casos de regresión del enrutado (Tipo × Severidad)
 │   └── test_risk_gate.py      # Pruebas de la puerta de riesgo sobre repositorios git temporales
 └── tools/
     ├── check-repo.py          # Validador determinista: enlaces+#anclas, frontmatter, portabilidad multi-LLM, clasificación y diversidad de proveedor
@@ -83,6 +84,8 @@ Toda petición pasa primero por [`skills/agent-routing/SKILL.md`](skills/agent-r
                                      └─► alto : qa + security-reviewer (en paralelo) ──► orchestrator consolida
 ```
 
+En un repositorio desconocido, el primer paso es generar su brain con [`specs/codebase-onboarding`](specs/codebase-onboarding/SKILL.md).
+
 ---
 
 ## 5. Hoja de ruta de construcción incremental
@@ -96,3 +99,4 @@ Toda petición pasa primero por [`skills/agent-routing/SKILL.md`](skills/agent-r
 - [x] **Extensión — Simplicidad pragmática con Ponytail:** skill nativa del repositorio ([`skills/ponytail/SKILL.md`](skills/ponytail/SKILL.md)), adaptación al español de [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) (MIT), regla 13 en [`AGENTS.md`](AGENTS.md) y directivas en [`architect`](agents/architect.md), [`implementer`](agents/implementer.md) y [`qa`](agents/qa.md). El plugin original es opcional y se instala en cada cliente según su [guía](https://github.com/DietrichGebert/ponytail#install).
 - [x] **Extensión — Puerta de riesgo determinista:** [`tools/risk-gate.py`](tools/risk-gate.py) calcula el nivel `bajo`/`alto` de un diff a partir de rutas sensibles, palabras sensibles en las líneas añadidas y tamaño (con [pruebas](tests/test_risk_gate.py)), y sustituye la decisión del LLM sobre cuánto revisar.
 - [x] **Extensión — Revisión de seguridad independiente:** [`security-reviewer`](agents/security-reviewer.md) revisa en paralelo con `qa` y con un proveedor distinto ([`docs/LLM.md`](docs/LLM.md#5-diversidad-de-proveedor-en-revision), comprobado por `check-repo.py --solo diversidad`); el [`orchestrator`](agents/orchestrator.md#consolidacion-de-dictamenes) consolida los dictámenes.
+- [x] **Extensión — Brain de repositorios nuevos:** [`specs/codebase-onboarding`](specs/codebase-onboarding/SKILL.md) genera `docs/` con punteros verificables, preguntas abiertas para el equipo, recuerdos en Engram y las rutas sensibles de la puerta de riesgo.

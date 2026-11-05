@@ -52,6 +52,9 @@ Seguimiento estructurado y determinista del plan de trabajo (tareas, estados `TO
 ### Memoria Episódica
 Memoria histórica y acumulativa que preserva aprendizajes, convenciones no escritas, decisiones de diseño y soluciones a bugs entre sesiones y modelos, persistida mediante [Engram](#engram).
 
+### Brain del proyecto
+Contexto persistente de un repositorio objetivo que los agentes leen antes de actuar: la documentación viva de `docs/` (índice, arquitectura, flujos, limitaciones y decisiones) más sus aprendizajes en [Engram](#engram). Se genera al llegar a un repositorio nuevo con [`specs/codebase-onboarding`](../specs/codebase-onboarding/SKILL.md) y se actualiza cuando un cambio altera flujos, limitaciones o decisiones.
+
 ### Engram
 Sistema de memoria persistente entre sesiones para agentes de programación creado por Alan Buscaglia (Gentleman Programming). Funciona como un binario en Go con SQLite y [FTS5 / BM25](#fts5--bm25) expuesto mediante el protocolo [MCP](#mcp) y CLI.
 
