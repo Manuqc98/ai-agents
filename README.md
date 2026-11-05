@@ -44,11 +44,13 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 │   ├── patrones/              # Catálogo canónico de patrones (22 patrones GoF indexados)
 │   └── plantillas/            # Plantillas neutras para crear nuevos agentes y skills
 ├── tests/
-│   └── clasificacion.md       # Batería de 15 casos de regresión del enrutado (Tipo × Severidad)
+│   ├── clasificacion.md       # Batería de 15 casos de regresión del enrutado (Tipo × Severidad)
+│   └── test_risk_gate.py      # Pruebas de la puerta de riesgo sobre repositorios git temporales
 └── tools/
     ├── check-repo.py          # Validador determinista: enlaces+#anclas, frontmatter, portabilidad multi-LLM y clasificación
     ├── install-engram.sh      # Instalador automático y compilado del binario de Engram
-    └── project-memory.py      # Gestor de memoria SQLite: tareas, corte a las 3 vueltas, ADRs y uso multi-LLM
+    ├── project-memory.py      # Gestor de memoria SQLite: tareas, corte a las 3 vueltas, ADRs y uso multi-LLM
+    └── risk-gate.py           # Puerta de riesgo: nivel bajo/alto de un diff según rutas sensibles, contenido sensible y tamaño
 ```
 
 ---
@@ -87,3 +89,4 @@ Toda petición pasa primero por [`skills/agent-routing/SKILL.md`](skills/agent-r
 - [x] **Extensión — Memoria dual con Engram:** memoria episódica semántica entre sesiones con [Engram](docs/glosario.md#engram) vía [MCP](docs/glosario.md#mcp) ([`docs/mcp/engram.json`](docs/mcp/engram.json)), skill [`skills/engram-memory/SKILL.md`](skills/engram-memory/SKILL.md) e instalador universal [`tools/install-engram.sh`](tools/install-engram.sh).
 - [x] **Extensión — Catálogo canónico de patrones:** los 22 patrones GoF indexados a [Refactoring Guru](docs/patrones/diseno.md), regla obligatoria en [`AGENTS.md`](AGENTS.md) y skill de triaje [`skills/design-patterns/SKILL.md`](skills/design-patterns/SKILL.md).
 - [x] **Extensión — Simplicidad pragmática con Ponytail:** skill nativa del repositorio ([`skills/ponytail/SKILL.md`](skills/ponytail/SKILL.md)), adaptación al español de [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) (MIT), regla 13 en [`AGENTS.md`](AGENTS.md) y directivas en [`architect`](agents/architect.md), [`implementer`](agents/implementer.md) y [`qa`](agents/qa.md). El plugin original es opcional y se instala en cada cliente según su [guía](https://github.com/DietrichGebert/ponytail#install).
+- [x] **Extensión — Puerta de riesgo determinista:** [`tools/risk-gate.py`](tools/risk-gate.py) calcula el nivel `bajo`/`alto` de un diff a partir de rutas sensibles, palabras sensibles en las líneas añadidas y tamaño (con [pruebas](tests/test_risk_gate.py)), y sustituye la decisión del LLM sobre cuánto revisar.
