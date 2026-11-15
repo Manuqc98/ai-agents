@@ -3,6 +3,7 @@
 Uso:
   python3 -m unittest discover tests
 """
+import os
 import subprocess
 import sys
 import tempfile
@@ -10,6 +11,8 @@ import unittest
 from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parents[1] / "tools" / "risk-gate.py"
+# Sin la configuración git de quien ejecuta las pruebas: el resultado no puede depender de su ~/.gitconfig
+ENTORNO = {**os.environ, "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1"}
 
 
 class PuertaDeRiesgo(unittest.TestCase):
@@ -25,7 +28,7 @@ class PuertaDeRiesgo(unittest.TestCase):
         self.tmp.cleanup()
 
     def git(self, *args):
-        subprocess.run(["git", "-C", str(self.repo), *args], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(self.repo), *args], check=True, capture_output=True, env=ENTORNO)
 
     def commit(self):
         self.git("add", ".")
@@ -40,9 +43,9 @@ class PuertaDeRiesgo(unittest.TestCase):
         destino.write_text(texto, encoding="utf-8")
         return destino
 
-    def puerta(self, *args):
+    def puerta(self, *args, entorno=ENTORNO):
         return subprocess.run(
-            [sys.executable, str(SCRIPT), "--repo", str(self.repo), *args], capture_output=True, text=True
+            [sys.executable, str(SCRIPT), "--repo", str(self.repo), *args], capture_output=True, text=True, env=entorno
         )
 
     def test_cambio_pequeno_en_fichero_normal_es_bajo(self):
@@ -113,6 +116,55 @@ class PuertaDeRiesgo(unittest.TestCase):
         r = self.puerta("--base", "no-existe")
         self.assertEqual(r.returncode, 1)
         self.assertIn("no-existe", r.stderr)
+
+    def test_error_de_uso_es_error_y_no_alto(self):
+        self.assertEqual(self.puerta("--bse", "main").returncode, 1)
+
+    def test_la_config_git_del_usuario_no_oculta_el_contenido(self):
+        self.escribir("src/app.py", "print('hola')\npassword = 'x'\n")
+        for clave in ("diff.noprefix", "diff.mnemonicPrefix"):
+            entorno = {**ENTORNO, "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": clave, "GIT_CONFIG_VALUE_0": "true"}
+            r = self.puerta(entorno=entorno)
+            self.assertEqual(r.returncode, 2, f"{clave}: {r.stdout}{r.stderr}")
+            self.assertIn("contenido sensible: src/app.py", r.stdout)
+
+    def test_clave_privada_es_alto(self):
+        self.escribir("claves/servidor.txt", "-----BEGIN OPENSSH PRIVATE KEY-----\nAAAA\n-----END OPENSSH PRIVATE KEY-----\n")
+        r = self.puerta()
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("private key", r.stdout)
+
+    def test_migracion_de_rails_es_alto(self):
+        self.escribir("db/migrate/20261105_quitar_columna.rb", "remove_column :pedidos, :nota\n")
+        self.assertEqual(self.puerta().returncode, 2)
+
+    def test_vaciar_la_config_del_proyecto_no_desactiva_sus_patrones(self):
+        self.escribir(".agents/rutas-sensibles.txt", "src/nominas/*\n")
+        self.escribir("src/nominas/calculo.py", "IRPF = 0\n")
+        self.commit()
+        self.escribir(".agents/rutas-sensibles.txt", "")
+        self.escribir("src/nominas/calculo.py", "IRPF = 1\n")
+        r = self.puerta()
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("src/nominas/*", r.stdout)
+        self.assertIn("ruta sensible: .agents/rutas-sensibles.txt", r.stdout)
+
+    def test_base_compara_contra_el_ancestro_comun(self):
+        self.git("branch", "base")
+        self.git("switch", "-q", "base")
+        self.escribir("package.json", "{}\n")  # la base avanza con un cambio sensible ajeno a la rama
+        self.commit()
+        self.git("switch", "-q", "-")
+        self.escribir("src/app.py", "print('adiós')\n")
+        self.commit()
+        r = self.puerta("--base", "base")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("resumen: 1 ficheros", r.stdout)
+
+    def test_enlace_sin_seguimiento_no_rompe_la_puerta(self):
+        (self.repo / "enlace").symlink_to(self.repo / "src")
+        r = self.puerta()
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
 
 
 if __name__ == "__main__":

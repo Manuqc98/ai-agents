@@ -311,14 +311,14 @@ def comprobar_clasificacion():
 def proveedor_efectivo(config, agente, nivel):
     """Resuelve el proveedor de un agente: override en `agentes:` > su `nivel-modelo` > `default`."""
     complejidad, _, agentes = config.partition("\nagentes:")
-    override = re.search(rf"^\s+{re.escape(agente)}:\s*([\w-]+)/", agentes, re.M)
+    override = re.search(rf"^\s+{re.escape(agente)}:\s*[\"']?([\w-]+)/", agentes, re.M)
     if override:
         return override.group(1)
     if nivel:
-        por_nivel = re.search(rf"^\s+{re.escape(nivel)}:\s*([\w-]+)/", complejidad, re.M)
+        por_nivel = re.search(rf"^\s+{re.escape(nivel)}:\s*[\"']?([\w-]+)/", complejidad, re.M)
         if por_nivel:
             return por_nivel.group(1)
-    por_defecto = re.search(r"^default:\s*([\w-]+)/", config, re.M)
+    por_defecto = re.search(r"^default:\s*[\"']?([\w-]+)/", config, re.M)
     return por_defecto.group(1) if por_defecto else None
 
 

@@ -139,7 +139,7 @@ Cuando `implementer` entrega en `REVIEW`, la profundidad de la revisión la deci
 1. **Calcula la [puerta de riesgo](../../docs/glosario.md#puerta-de-riesgo)** sobre el repositorio objetivo:
    ```bash
    python3 tools/risk-gate.py --repo <ruta-del-proyecto> --base <rama-base>
-   # Sale con 0 (bajo), 2 (alto) o 1 (error: no se pudo calcular)
+   # Compara contra el ancestro común con la rama base. Sale con 0 (bajo), 2 (alto) o 1 (error: no se pudo calcular)
    ```
 2. **Elige quién revisa:**
 
@@ -149,7 +149,7 @@ Cuando `implementer` entrega en `REVIEW`, la profundidad de la revisión la deci
    | `risk-gate.py` devuelve `alto` (código 2) | `qa` + `security-reviewer` |
    | El contrato o la Fase 0 detectan [PII](../../docs/glosario.md#pii) o pagos | `qa` + `security-reviewer` |
    | La petición es una incidencia de seguridad (fuga de secretos, acceso indebido, inyección) | `qa` + `security-reviewer` |
-   | `risk-gate.py` falla (código 1) | Se trata como `alto` y se declara |
+   | `risk-gate.py` falla (código 1, o la salida no trae la línea `riesgo:`; por ejemplo, `python3` no encuentra el script y sale con 2) | Se trata como `alto` y se declara como error |
 
 3. **Sentido único:** el nivel puede **subirse** con un motivo escrito (por ejemplo, un cambio pequeño en lógica de permisos que ningún patrón captura), **nunca bajarse**. Si un patrón da falsos positivos recurrentes en un proyecto, se ajusta su `.agents/rutas-sensibles.txt`; no se ignora el resultado.
 4. **La puerta no decide si interviene una persona:** publicar o fusionar el cambio ya exige su confirmación explícita (regla 6 de [`AGENTS.md`](../../AGENTS.md)). Decide cuánto se revisa y dónde mirar: con `alto`, si el cambio va en una PR (*pull request*), su descripción enumera los motivos de la puerta.
