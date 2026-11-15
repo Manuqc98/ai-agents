@@ -1,16 +1,16 @@
 # Plantillas del brain (`codebase-onboarding`)
 
-Plantillas de los cinco documentos que genera la [Fase 2](../SKILL.md#fase-2--redaccion-architect). Cópialas en `docs/` del repositorio objetivo y sustituye cada `<marcador>`.
+Plantillas de los cinco documentos que genera la [Fase 2](../SKILL.md#fase-2--redaccion-architect). Cópialas en `docs/brain/` del repositorio objetivo y sustituye cada `<marcador>`.
 
 Reglas comunes a todas:
 - Cada afirmación lleva evidencia: un puntero `ruta:línea` relativo a la raíz del repositorio (por ejemplo, `src/pagos/cobro.ts:42`) o `commit <hash>`. Lo que se deduce sin ejecutar se marca como `inferido`; lo que no se puede señalar, como `supuesto`.
-- Enlaces markdown solo entre documentos del brain, relativos a `docs/`. Nunca `file:///`.
+- Enlaces markdown solo entre documentos del brain, relativos a `docs/brain/`. Nunca `file:///`.
 - Las preguntas abiertas se citan por su identificador (`P-01`).
 - Fechas absolutas (`AAAA-MM-DD`).
 
 ---
 
-## 1. `docs/index.md`
+## 1. `docs/brain/index.md`
 
 ```markdown
 # Brain de <proyecto>
@@ -37,7 +37,7 @@ Documentación existente del repositorio (contrastada con el código): <`AGENTS.
 
 ---
 
-## 2. `docs/architecture.md`
+## 2. `docs/brain/architecture.md`
 
 ```markdown
 # Arquitectura de <proyecto>
@@ -63,7 +63,7 @@ Documentación existente del repositorio (contrastada con el código): <`AGENTS.
 
 ---
 
-## 3. `docs/flows.md`
+## 3. `docs/brain/flows.md`
 
 ```markdown
 # Flujos de <proyecto>
@@ -79,7 +79,7 @@ Documentación existente del repositorio (contrastada con el código): <`AGENTS.
 
 ---
 
-## 4. `docs/limitations-and-gotchas.md`
+## 4. `docs/brain/limitations-and-gotchas.md`
 
 ```markdown
 # Limitaciones, gotchas y deuda de <proyecto>
@@ -100,7 +100,7 @@ Documentación existente del repositorio (contrastada con el código): <`AGENTS.
 
 ---
 
-## 5. `docs/decisions.md`
+## 5. `docs/brain/decisions.md`
 
 ```markdown
 # Decisiones de arquitectura (ADR) de <proyecto>
