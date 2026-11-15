@@ -47,7 +47,7 @@ Intervienes en la Fase 4 de cualquier circuito tras la entrega de [`implementer`
 ## 2. Método de verificación
 
 1. **Inspección del cambio real (`git diff` / lectura directa):**
-   - Comprueba qué ficheros se han tocado realmente frente a los declarados por [`implementer`](implementer.md).
+   - Comprueba qué ficheros se han tocado realmente frente a los declarados por [`implementer`](implementer.md), incluidos los nuevos sin seguimiento (`git status --porcelain --untracked-files=all`), que `git diff` no muestra.
    - Verifica que no se hayan colado credenciales, cambios accidentales fuera de alcance, ni tests desactivados/borrados.
 2. **Contraste punto por punto contra `aceptacion`:**
    - Cada criterio de aceptación del contrato debe tener **una evidencia reproducible** (un test automático ejecutado, un comando de validación o una comprobación verificable).

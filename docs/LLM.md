@@ -22,10 +22,10 @@ complejidad:
   complicada: anthropic/claude-opus-5-5      # Decisiones críticas: arquitectura, auditoría, triaje complejo
 
 # Opcional: forzar un modelo concreto para un rol específico en este proyecto
-agentes: {}
+agentes:   # vacío = sin overrides; descomenta las líneas que necesites
   # orchestrator: google/gemini-3.1-pro
   # docs-writer:  local/qwen3-coder-32b
-  # security-reviewer: openai/gpt-6.1-sol   # proveedor distinto al de implementer (ver §5)
+  # security-reviewer: openai/gpt-6-astra   # nivel complicada de otro proveedor (ver §5)
 ```
 
 ---
@@ -72,7 +72,7 @@ Cuando se ejecuta una tarea o se invoca a un subagente, el modelo efectivo se de
 
 Un revisor que comparte modelo con quien escribió el código tiende a compartir también sus puntos ciegos (sesgo de confirmación). Por eso:
 
-- [`security-reviewer`](../agents/security-reviewer.md) debe resolverse a un **proveedor distinto** del de [`implementer`](../agents/implementer.md) según el [orden de resolución](#4-orden-de-resolucion). Con la configuración de §1 ya ocurre: `media` va a google y `complicada` a anthropic.
-- Si cambias la configuración, mantén esa diferencia o fija el revisor en `agentes:`. `python3 tools/check-repo.py --solo diversidad` falla si los dos acaban en el mismo proveedor.
+- [`security-reviewer`](../agents/security-reviewer.md) debe resolverse a un **proveedor distinto** del de [`implementer`](../agents/implementer.md) según el [orden de resolución](#4-orden-de-resolucion). Con la configuración de §1 se cumple mientras `implementer` trabaja en su nivel (`media` → google, `complicada` → anthropic), **pero no si la regla de conflicto lo eleva a `complicada`**: entonces los dos acaban en anthropic. En ese caso el [`orchestrator`](../agents/orchestrator.md) repite la revisión con el modelo `complicada` de otro proveedor disponible (§3) o lo declara en `Desviación`.
+- Si cambias la configuración, mantén esa diferencia o fija el revisor en `agentes:` con un proveedor que no aparezca en `complejidad:` (así la elevación no puede alcanzarlo). `python3 tools/check-repo.py --solo diversidad` falla si los dos acaban en el mismo proveedor con sus niveles declarados; no puede saber a qué nivel se elevará cada tarea.
 - **Si solo tienes un proveedor disponible**, la revisión no se bloquea: el informe lo declara como «diversidad no disponible» y el contexto limpio (solo contrato y diff) sigue aplicando.
 - Una indicación manual en la conversación gana a esta configuración (paso 1 del orden de resolución). Por eso el [`orchestrator`](../agents/orchestrator.md) compara además el proveedor que declara el informe de `security-reviewer` con el que usó para `implementer` (registrado con `python3 tools/project-memory.py usage`).
