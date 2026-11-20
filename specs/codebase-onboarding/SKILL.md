@@ -1,7 +1,7 @@
 ---
 name: codebase-onboarding
 description: "Guion por fases para generar el brain de un repositorio que no conoces: inventario con comandos, documentación viva en docs/brain/ (índice, arquitectura, flujos, limitaciones y decisiones) con punteros verificables, preguntas abiertas para el equipo y siembra de Engram y de las rutas sensibles de la puerta de riesgo. Cárgala al llegar a un repositorio sin docs/brain/index.md o cuando la petición sea «analiza este repositorio» o «genera su documentación de contexto»."
-version: 1.1.0
+version: 1.2.0
 license: MIT
 tags: [onboarding, brain, docs, analysis, context, engram]
 related_skills: [agent-routing, engram-memory]
@@ -26,7 +26,7 @@ Sin contexto persistente, cada agente redescubre el proyecto en cada sesión y d
 
 1. **Alcance:** ¿repositorio entero o un módulo concreto? En repositorios grandes, empieza por el módulo de la primera tarea.
 2. **Dónde vive el brain:** siempre en su propia carpeta, `docs/brain/`, para no pisar ni ocultar la documentación que el equipo ya tenga en `docs/`.
-   - **Local sin versionar (por defecto):** añade `docs/brain/` a `.git/info/exclude`. No toca `.gitignore` ni el historial del equipo. Acuerda con la persona cómo lo cargará su cliente (por ejemplo, un fichero de instrucciones local, también excluido, que apunte a `docs/brain/index.md`): si nada lo enlaza, ningún agente lo encontrará.
+   - **Local sin versionar (por defecto):** `docs/brain/` se añade a `.git/info/exclude` (lo hace `implementer` en la Fase 3). No toca `.gitignore` ni el historial del equipo. Acuerda con la persona cómo lo cargará su cliente (por ejemplo, un fichero de instrucciones local, también excluido, que apunte a `docs/brain/index.md`): si nada lo enlaza, ningún agente lo encontrará.
    - **Versionado:** solo si el equipo lo acepta de forma explícita. En un equipo nuevo, no lo des por hecho.
 3. **Disparadores sensibles:** ¿maneja datos personales ([PII](../../docs/glosario.md#pii)), pagos, credenciales de terceros o lógica que decide precios, órdenes o importes? Anota en la sección «Datos sensibles» de `index.md` qué no puede aparecer ni en el brain ni en Engram.
 
@@ -47,16 +47,17 @@ La fuente manda (regla 7 de [`AGENTS.md`](../../AGENTS.md)): cada dato sale de u
 
 ```bash
 # Lenguajes: ficheros versionados por extensión
-git ls-files | sed -n 's|.*/||; s/.*\.//p' | sort | uniq -c | sort -rn | head
+#   (core.quotepath=off: sin él, git entrecomilla y escapa las rutas con tildes o eñes)
+git -c core.quotepath=off ls-files | sed -n 's|.*/||; s/.*\.//p' | sort | uniq -c | sort -rn | head
 # Zonas que más cambian en el último año (grep . quita las líneas vacías entre commits)
-git log --since=1.year --format= --name-only | grep . | sort | uniq -c | sort -rn | head -20
+git -c core.quotepath=off log --since=1.year --format= --name-only | grep . | sort | uniq -c | sort -rn | head -20
 ```
 
 No recojas autores ni correos, ni del historial ni de los metadatos de ficheros versionados (por ejemplo, `authors` en `pyproject.toml` o firmas del README): son PII y no aportan nada al brain.
 
 ## Fase 2 — Redacción (`architect`)
 
-Rellena las plantillas de [`references/plantillas.md`](references/plantillas.md) en este orden: `architecture.md` → `flows.md` → `limitations-and-gotchas.md` → `decisions.md` → `index.md`. El índice va al final, cuando ya sabes qué contiene cada documento.
+Rellena en tu entrega las plantillas de [`references/plantillas.md`](references/plantillas.md) (no escribes ficheros: lo hace `implementer` en la Fase 3) en este orden: `architecture.md` → `flows.md` → `limitations-and-gotchas.md` → `decisions.md` → `index.md`. El índice va al final, cuando ya sabes qué contiene cada documento.
 
 1. **Cada afirmación con evidencia:** un puntero `` `ruta:línea` `` relativo a la raíz del repositorio (o `` `ruta` `` si es el fichero entero), o `` `commit <hash>` `` cuando el porqué solo está en un mensaje de commit.
 2. **Tres niveles de certeza:** con puntero directo (no se marca); `inferido` si se deduce de varios punteros sin haberlo ejecutado (cita de cuáles sale); `supuesto` si no hay puntero.
@@ -67,9 +68,10 @@ Rellena las plantillas de [`references/plantillas.md`](references/plantillas.md)
 
 ## Fase 3 — Siembra (`implementer`)
 
-1. **Memoria episódica:** guarda en [Engram](../../docs/glosario.md#engram) solo lo no evidente (gotchas, convenciones, causas de comportamientos raros), en 2 o 3 líneas cada uno y sin secretos ni PII ([`skills/engram-memory`](../../skills/engram-memory/SKILL.md)). Empieza cada título con el nombre del repositorio (`<repo>: ...`) para no mezclar proyectos. Si inicializar Engram crea ficheros en el repositorio y el brain es local, exclúyelos igual que `docs/brain/`.
-2. **Rutas sensibles de la [puerta de riesgo](../../docs/glosario.md#puerta-de-riesgo):** crea `.agents/rutas-sensibles.txt` en el repositorio objetivo con los módulos de autenticación, pagos, datos personales, configuración crítica o lógica que decide precios, órdenes o importes que hayas encontrado y que los patrones por defecto de [`tools/risk-gate.py`](../../tools/risk-gate.py) no capturan. Sigue el mismo criterio de versionado que el brain: si es local, añádelo también a `.git/info/exclude`.
-3. **Comprobación:** ejecuta `python3 tools/risk-gate.py --repo <ruta-del-proyecto> --probar-patrones` y entrega su salida a `qa`. Lista cuántos ficheros versionados captura cada patrón; los marcados con `⚠` no capturan ninguno (son preventivos o erratas).
+1. **Documentos:** escribe en `docs/brain/` los cinco documentos que entregó `architect`, sin cambiar su contenido. Si el brain es local, añade `docs/brain/` a `.git/info/exclude`.
+2. **Memoria episódica:** guarda en [Engram](../../docs/glosario.md#engram) solo lo no evidente (gotchas, convenciones, causas de comportamientos raros), en 2 o 3 líneas cada uno y sin secretos ni PII ([`skills/engram-memory`](../../skills/engram-memory/SKILL.md)). Empieza cada título con el nombre del repositorio (`<repo>: ...`) para no mezclar proyectos. Si inicializar Engram crea ficheros en el repositorio y el brain es local, exclúyelos igual que `docs/brain/`.
+3. **Rutas sensibles de la [puerta de riesgo](../../docs/glosario.md#puerta-de-riesgo):** crea `.agents/rutas-sensibles.txt` en el repositorio objetivo con los módulos de autenticación, pagos, datos personales, configuración crítica o lógica que decide precios, órdenes o importes que hayas encontrado y que los patrones por defecto de [`tools/risk-gate.py`](../../tools/risk-gate.py) no capturan. Sigue el mismo criterio de versionado que el brain: si es local, añádelo también a `.git/info/exclude`.
+4. **Comprobación:** ejecuta `python3 tools/risk-gate.py --repo <ruta-del-proyecto> --probar-patrones` y entrega su salida a `qa`. Lista cuántos ficheros versionados captura cada patrón; los marcados con `⚠` no capturan ninguno (son preventivos o erratas).
 
 ## Fase 4 — Verificación por otro rol (`qa`)
 
