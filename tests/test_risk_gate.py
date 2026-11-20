@@ -7,12 +7,18 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parents[1] / "tools" / "risk-gate.py"
-# Sin la configuración git de quien ejecuta las pruebas: el resultado no puede depender de su ~/.gitconfig
-ENTORNO = {**os.environ, "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1"}
+# Sin la configuración git de quien ejecuta las pruebas ni sus variables GIT_*: un hook exporta GIT_DIR o
+# GIT_INDEX_FILE, que ganan a `git -C` y harían que las pruebas escribieran en el repositorio exterior
+ENTORNO = {
+    **{clave: valor for clave, valor in os.environ.items() if not clave.startswith("GIT_")},
+    "GIT_CONFIG_GLOBAL": os.devnull,
+    "GIT_CONFIG_NOSYSTEM": "1",
+}
 
 
 class PuertaDeRiesgo(unittest.TestCase):
@@ -165,6 +171,82 @@ class PuertaDeRiesgo(unittest.TestCase):
         (self.repo / "enlace").symlink_to(self.repo / "src")
         r = self.puerta()
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_config_externa_se_suma_a_la_del_proyecto(self):
+        self.escribir(".agents/rutas-sensibles.txt", "src/nominas/*\n")
+        self.escribir("src/nominas/calculo.py", "IRPF = 0\n")
+        self.commit()
+        self.escribir("src/nominas/calculo.py", "IRPF = 1\n")
+        config = self.escribir("extra.txt", "otro/*\n", raiz=Path(self.tmp.name))
+        r = self.puerta("--config", str(config))
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("src/nominas/*", r.stdout)
+
+    def test_patrones_que_la_base_anade_despues_tambien_cuentan(self):
+        self.escribir("src/nominas/calculo.py", "IRPF = 0\n")
+        self.commit()
+        self.git("branch", "base")
+        self.git("switch", "-q", "-c", "rama")
+        self.escribir("src/nominas/calculo.py", "IRPF = 1\n")
+        self.commit()
+        self.git("switch", "-q", "base")
+        self.escribir(".agents/rutas-sensibles.txt", "src/nominas/*\n")  # la base declara la ruta tras bifurcarse
+        self.commit()
+        self.git("switch", "-q", "rama")
+        r = self.puerta("--base", "base")
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("src/nominas/*", r.stdout)
+
+    def test_config_con_bom_o_en_cp1252_no_pierde_patrones(self):
+        config = self.repo / ".agents" / "rutas-sensibles.txt"
+        config.parent.mkdir()
+        config.write_bytes(b"\xef\xbb\xbfsrc/nominas/*\n# N\xf3minas\n")
+        self.escribir("src/nominas/calculo.py", "IRPF = 0\n")
+        self.commit()
+        self.escribir("src/nominas/calculo.py", "IRPF = 1\n")
+        r = self.puerta()
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("(patrón «src/nominas/*»)", r.stdout)
+
+    def test_clon_superficial_explica_el_error(self):
+        self.git("branch", "base")
+        self.git("switch", "-q", "-c", "rama")
+        self.escribir("src/app.py", "print('adiós')\n")
+        self.commit()
+        self.git("switch", "-q", "base")
+        self.escribir("src/otro.py", "x = 1\n")
+        self.commit()
+        clon = Path(self.tmp.name) / "clon"
+        self.git("clone", "-q", "--depth", "1", "--branch", "rama", self.repo.as_uri(), str(clon))
+        self.repo = clon
+        self.git("fetch", "-q", "--depth", "1", "origin", "base:refs/remotes/origin/base")
+        r = self.puerta("--base", "origin/base")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("superficial", r.stderr)
+
+    def test_ruta_entrecomillada_se_informa_con_su_nombre_real(self):
+        self.escribir('src/año "2026".py', "x = 0\n")
+        self.commit()
+        self.escribir('src/año "2026".py', "x = 0\ntoken = 1\n")
+        r = self.puerta()
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn('contenido sensible: src/año "2026".py', r.stdout)
+        self.assertIn("resumen: 1 ficheros", r.stdout)
+
+    def test_salto_de_pagina_no_oculta_una_linea_anadida(self):
+        self.escribir("src/app.py", "print('hola')\nx = 1\fpassword = 2\n")
+        r = self.puerta()
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("contenido sensible: src/app.py", r.stdout)
+
+    def test_muchas_lineas_anadidas_se_evaluan_en_tiempo_lineal(self):
+        self.escribir("src/datos.txt", "")
+        self.commit()
+        self.escribir("src/datos.txt", "una línea de datos sin nada especial\n" * 100_000)
+        inicio = time.monotonic()
+        r = self.puerta("--max-lineas", "1000000")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertLess(time.monotonic() - inicio, 10)  # con concatenación cuadrática tardaba minutos
 
 
 if __name__ == "__main__":

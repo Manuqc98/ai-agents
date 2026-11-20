@@ -311,15 +311,17 @@ def comprobar_clasificacion():
 def proveedor_efectivo(config, agente, nivel):
     """Resuelve el proveedor de un agente: override en `agentes:` > su `nivel-modelo` > `default`."""
     complejidad, _, agentes = config.partition("\nagentes:")
-    override = re.search(rf"^\s+{re.escape(agente)}:\s*[\"']?([\w-]+)/", agentes, re.M)
-    if override:
-        return override.group(1)
-    if nivel:
-        por_nivel = re.search(rf"^\s+{re.escape(nivel)}:\s*[\"']?([\w-]+)/", complejidad, re.M)
-        if por_nivel:
-            return por_nivel.group(1)
-    por_defecto = re.search(r"^default:\s*[\"']?([\w-]+)/", config, re.M)
-    return por_defecto.group(1) if por_defecto else None
+
+    def proveedor(clave, texto, sangria=r"\s+"):
+        # YAML admite la clave y el valor con o sin comillas
+        encontrado = re.search(rf"^{sangria}[\"']?{re.escape(clave)}[\"']?:\s*[\"']?([\w-]+)/", texto, re.M)
+        return encontrado.group(1) if encontrado else None
+
+    return (
+        proveedor(agente, agentes)
+        or (nivel and proveedor(nivel, complejidad))
+        or proveedor("default", config, sangria="")
+    )
 
 
 def comprobar_diversidad():

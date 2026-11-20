@@ -37,7 +37,7 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 │   ├── engram-memory/         # Memoria episódica y semántica persistente (Engram vía MCP/CLI)
 │   └── ponytail/              # Simplicidad pragmática y anti-sobreingeniería (escalera de simplicidad)
 ├── specs/                     # Guiones interactivos por fases (Iteración 4)
-│   ├── codebase-onboarding/   # Genera el brain (docs/ + Engram) de un repositorio desconocido
+│   ├── codebase-onboarding/   # Genera el brain (docs/brain/ + Engram) de un repositorio desconocido
 │   └── solution-design-spec/  # Guion SDD en 4 fases para el circuito completo
 ├── docs/
 │   ├── LLM.md                 # Política de modelos multi-proveedor por nivel de complejidad
@@ -47,6 +47,7 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 │   └── plantillas/            # Plantillas neutras para crear nuevos agentes y skills
 ├── tests/
 │   ├── clasificacion.md       # Batería de 16 casos de regresión del enrutado (Tipo × Severidad)
+│   ├── test_check_repo.py     # Pruebas de la resolución de proveedor de check-repo.py
 │   └── test_risk_gate.py      # Pruebas de la puerta de riesgo sobre repositorios git temporales
 └── tools/
     ├── check-repo.py          # Validador determinista: enlaces+#anclas, frontmatter, portabilidad multi-LLM, clasificación y diversidad de proveedor

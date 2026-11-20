@@ -4,7 +4,8 @@
 Calcula el nivel de riesgo de un cambio con hechos comprobables del diff, no con el criterio de un LLM:
   rutas sensibles      ¿Toca secretos, autenticación, pagos, migraciones, dependencias, CI o infraestructura?
                        Patrones por defecto + los del proyecto en .agents/rutas-sensibles.txt, tomados de la
-                       base y del árbol de trabajo: el cambio puede añadir patrones, nunca quitarlos.
+                       punta de la base, del ancestro común y del árbol de trabajo, más los de --config:
+                       el cambio puede añadir patrones, nunca quitarlos.
   contenido sensible   ¿Alguna línea añadida menciona tokens, contraseñas, claves o credenciales?
                        El informe cita el fichero y la palabra, nunca la línea (podría contener el secreto).
   tamaño               ¿Supera el umbral de líneas cambiadas o de ficheros tocados?
@@ -89,25 +90,26 @@ def git(repo, *args):
     return resultado.stdout
 
 
-def patrones_de(texto):
-    lineas = (linea.strip() for linea in texto.splitlines())
+def patrones_de(datos):
+    # utf-8-sig quita el BOM que añaden algunos editores de Windows (pegado al primer patrón, lo anularía)
+    lineas = (linea.strip() for linea in datos.decode("utf-8-sig", "replace").splitlines())
     return [linea for linea in lineas if linea and not linea.startswith("#")]
 
 
-def patrones_del_proyecto(repo, base):
-    """Une la config versionada en la base y la del árbol de trabajo: el cambio no puede quitar patrones.
+def patrones_del_proyecto(repo, refs, extra=None):
+    """Une la config versionada en cada referencia, la del árbol de trabajo y la de --config.
 
-    Si la config es local (sin versionar), no hay base con la que comparar y vale la del árbol de trabajo.
+    Así el cambio no puede quitar patrones. Si la config es local (sin versionar), vale la del árbol de trabajo.
     """
     patrones = []
-    try:
-        versionada = git(repo, "show", f"{base}:{CONFIG_DEL_PROYECTO.as_posix()}")
-        patrones += patrones_de(versionada.decode("utf-8", "replace"))
-    except ErrorPuerta:
-        pass  # la base no la tiene versionada
-    local = repo / CONFIG_DEL_PROYECTO
-    if local.is_file():
-        patrones += patrones_de(local.read_text(encoding="utf-8"))
+    for ref in dict.fromkeys(refs):
+        try:
+            patrones += patrones_de(git(repo, "show", f"{ref}:{CONFIG_DEL_PROYECTO.as_posix()}"))
+        except ErrorPuerta:
+            pass  # esa referencia no la tiene versionada
+    for fichero in (repo / CONFIG_DEL_PROYECTO, extra):
+        if fichero and fichero.is_file():
+            patrones += patrones_de(fichero.read_bytes())
     return list(dict.fromkeys(patrones))
 
 
@@ -131,35 +133,53 @@ def ancestro_comun(repo, base):
         git(repo, "rev-parse", "--verify", "--quiet", f"{base}^{{commit}}")
     except ErrorPuerta:
         raise ErrorPuerta(f"la base «{base}» no existe en {repo}") from None
-    return git(repo, "merge-base", base, "HEAD").decode("utf-8").strip()
+    try:
+        return git(repo, "merge-base", base, "HEAD").decode("utf-8").strip()
+    except ErrorPuerta:
+        motivo = f"«{base}» y HEAD no tienen ancestro común en {repo}"
+        if git(repo, "rev-parse", "--is-shallow-repository").strip() == b"true":
+            motivo += "; el clon es superficial: trae la historia con `git fetch --unshallow` (o `fetch-depth: 0` en CI)"
+        raise ErrorPuerta(motivo) from None
+
+
+def ruta_de_cabecera(cabecera):
+    """Ruta de una línea `+++ b/<ruta>` del diff, o None si es un borrado (`+++ /dev/null`).
+
+    git añade un tabulador final si la ruta tiene espacios, y entrecomilla con escapes de C (`\\"`, `\\303\\261`)
+    las que tienen comillas, barras invertidas, caracteres de control o caracteres no ASCII.
+    """
+    nombre = cabecera[4:].rstrip(b"\t")
+    if nombre.startswith(b'"') and nombre.endswith(b'"'):
+        # unicode_escape deshace los escapes; latin-1 devuelve los bytes originales para decodificarlos como UTF-8
+        nombre = nombre[1:-1].decode("unicode_escape").encode("latin-1")
+    return nombre[2:].decode("utf-8", "replace") if nombre.startswith(b"b/") else None
 
 
 def cambios(repo, ancestro):
     """Compara el árbol de trabajo con el ancestro común, incluidos los ficheros sin seguimiento.
 
-    Devuelve dos diccionarios por ruta: líneas cambiadas y texto añadido.
+    Devuelve dos diccionarios por ruta: líneas cambiadas y la primera palabra sensible de sus líneas añadidas.
     """
-    lineas, anadido = {}, {}
+    lineas, palabras = {}, {}
     for entrada in git(repo, "diff", "--numstat", "-z", *OPCIONES_DIFF, ancestro).split(b"\0"):
         if entrada:
             anadidas, borradas, ruta = entrada.decode("utf-8", "replace").split("\t", 2)
             # Los binarios aparecen como «-»: cuentan como fichero tocado, no como líneas
             lineas[ruta] = sum(int(n) for n in (anadidas, borradas) if n.isdigit())
 
-    diff = git(repo, "-c", "core.quotepath=false", "diff", "-U0", *OPCIONES_DIFF, ancestro)
     ruta, en_cabecera = None, False
-    for linea in diff.decode("utf-8", "replace").split("\n"):
-        if linea.startswith("diff --git "):
+    # Solo se parte por «\n»: splitlines() también parte por \r, \f o \x1c y separaría una línea de su «+»
+    for linea in git(repo, "diff", "-U0", *OPCIONES_DIFF, ancestro).split(b"\n"):
+        if linea.startswith(b"diff --git "):
             ruta, en_cabecera = None, True
-        elif linea.startswith("@@"):
+        elif linea.startswith(b"@@"):
             en_cabecera = False
-        elif en_cabecera and linea.startswith("+++ "):
-            # /dev/null es un borrado; git añade un tabulador final si la ruta tiene espacios y entrecomilla
-            # las que tienen caracteres especiales (se escanean igual, con el nombre escapado)
-            nombre = linea[4:].rstrip("\t").strip('"')
-            ruta = nombre[2:] if nombre.startswith("b/") else None
-        elif not en_cabecera and ruta and linea.startswith("+"):
-            anadido[ruta] = anadido.get(ruta, "") + linea[1:] + "\n"
+        elif en_cabecera and linea.startswith(b"+++ "):
+            ruta = ruta_de_cabecera(linea)
+        elif not en_cabecera and ruta and ruta not in palabras and linea.startswith(b"+"):
+            encontrada = PALABRAS_SENSIBLES.search(linea[1:].decode("utf-8", "replace"))
+            if encontrada:
+                palabras[ruta] = encontrada.group(0).lower()
 
     for cruda in git(repo, "ls-files", "--others", "--exclude-standard", "-z").split(b"\0"):
         if not cruda:
@@ -172,21 +192,22 @@ def cambios(repo, ancestro):
         with fichero.open("rb") as f:
             # shortcut: solo se lee el primer MiB de cada fichero sin seguimiento, subir MAX_BYTES_LEIDOS si hiciera falta escanear ficheros mayores, sencilla
             contenido = f.read(MAX_BYTES_LEIDOS)
-        binario = b"\0" in contenido
-        lineas[ruta] = 0 if binario else contenido.count(b"\n") + (bool(contenido) and not contenido.endswith(b"\n"))
-        anadido[ruta] = "" if binario else contenido.decode("utf-8", "replace")
-    return lineas, anadido
+        texto = "" if b"\0" in contenido else contenido.decode("utf-8", "replace")  # binario: tocado, sin líneas
+        lineas[ruta] = texto.count("\n") + (bool(texto) and not texto.endswith("\n"))
+        encontrada = PALABRAS_SENSIBLES.search(texto)
+        if encontrada:
+            palabras[ruta] = encontrada.group(0).lower()
+    return lineas, palabras
 
 
-def evaluar(lineas, anadido, patrones, max_lineas, max_ficheros):
+def evaluar(lineas, palabras, patrones, max_lineas, max_ficheros):
     motivos = []
-    for ruta in sorted(set(lineas) | set(anadido)):
+    for ruta in sorted(lineas.keys() | palabras.keys()):
         patron = patron_que_coincide(ruta, patrones)
-        palabra = PALABRAS_SENSIBLES.search(anadido.get(ruta, ""))
         if patron:
             motivos.append(f"ruta sensible: {ruta} (patrón «{patron}»)")
-        elif palabra:
-            motivos.append(f"contenido sensible: {ruta} (una línea añadida menciona «{palabra.group(0).lower()}»)")
+        elif ruta in palabras:
+            motivos.append(f"contenido sensible: {ruta} (una línea añadida menciona «{palabras[ruta]}»)")
     total = sum(lineas.values())
     if total > max_lineas:
         motivos.append(f"tamaño: {total} líneas cambiadas (umbral {max_lineas})")
@@ -214,7 +235,7 @@ def main():
     parser.add_argument("--base", default="HEAD", help="Referencia contra la que se compara (por defecto, HEAD)")
     parser.add_argument(
         "--config",
-        help=f"Patrones extra del proyecto (por defecto, <repo>/{CONFIG_DEL_PROYECTO.as_posix()} si existe)",
+        help=f"Fichero de patrones adicional: se suma a los del proyecto (<repo>/{CONFIG_DEL_PROYECTO.as_posix()}), nunca los sustituye",
     )
     parser.add_argument("--max-lineas", type=int, default=300, help="Umbral de líneas cambiadas (por defecto, 300)")
     parser.add_argument("--max-ficheros", type=int, default=20, help="Umbral de ficheros tocados (por defecto, 20)")
@@ -234,19 +255,16 @@ def main():
         if args.config and not Path(args.config).is_file():
             raise ErrorPuerta(f"no existe el fichero de patrones {args.config}")
         ancestro = "HEAD" if args.probar_patrones else ancestro_comun(repo, args.base)
-        if args.config:
-            proyecto = patrones_de(Path(args.config).read_text(encoding="utf-8"))
-        else:
-            proyecto = patrones_del_proyecto(repo, ancestro)
+        proyecto = patrones_del_proyecto(repo, (args.base, ancestro), Path(args.config) if args.config else None)
         if args.probar_patrones:
             probar_patrones(repo, proyecto)
             sys.exit(SALIDA_BAJO)
-        lineas, anadido = cambios(repo, ancestro)
+        lineas, palabras = cambios(repo, ancestro)
     except (ErrorPuerta, OSError) as e:
         print(f"✗ error: {e}", file=sys.stderr)
         sys.exit(SALIDA_ERROR)
 
-    motivos = evaluar(lineas, anadido, list(PATRONES_POR_DEFECTO) + proyecto, args.max_lineas, args.max_ficheros)
+    motivos = evaluar(lineas, palabras, list(PATRONES_POR_DEFECTO) + proyecto, args.max_lineas, args.max_ficheros)
     print(f"riesgo: {'alto' if motivos else 'bajo'}")
     print("motivos:" if motivos else "motivos: ninguno")
     for motivo in motivos:
