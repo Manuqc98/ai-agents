@@ -83,12 +83,13 @@ Lo que falta por aclarar: <preguntas concretas, o "nada, procedo">
 2. **Punteros, nunca copias:** en `entrada` pasa rutas y líneas (`src/api/user.ts:15-40`), nunca bloques de código pegados.
 3. **Condición de rechazo obligatoria (`devuelve-si`):** nunca delegues sin escribir bajo qué condición el receptor debe devolverte la tarea.
 4. **Verificar antes de avanzar:** cuando un agente termina, comprueba que ha cumplido el campo `aceptacion` antes de pasar el testigo al siguiente.
-5. **Estado persistente en SQLite ([`tools/project-memory.py`](../tools/project-memory.py)):** en tareas multifase o que requieran recordar estado entre sesiones, apóyate en `.agents/memory.sqlite3` en lugar de confiar solo en la ventana de contexto:
+5. **Estado persistente en SQLite ([`tools/project-memory.py`](../tools/project-memory.py)):** en tareas multifase o que requieran recordar estado entre sesiones, apóyate en `.agents/memory.sqlite3` en lugar de confiar solo en la ventana de contexto (pasa `--repo <ruta>` cuando trabajes sobre otro proyecto):
    ```bash
-   python3 tools/project-memory.py init
-   python3 tools/project-memory.py task set "<id>" --status WIP --agent implementer --acceptance "<criterio>"
-   python3 tools/project-memory.py task iterate "<id>"   # Devuelve código 3 al llegar a la 3.ª vuelta
-   python3 tools/project-memory.py status
+   python3 tools/project-memory.py --repo <ruta> init
+   python3 tools/project-memory.py --repo <ruta> task set "<id>" --status WIP --agent implementer --acceptance "<criterio>"
+   python3 tools/project-memory.py --repo <ruta> task show "<id>"
+   python3 tools/project-memory.py --repo <ruta> task iterate "<id>"   # Devuelve código 3 al llegar a la 3.ª vuelta
+   python3 tools/project-memory.py --repo <ruta> status
    ```
 6. **Memoria episódica ([Engram](../docs/glosario.md#engram) / [`skills/engram-memory`](../skills/engram-memory/SKILL.md)):** en consultas ambiguas o tareas sobre módulos con histórico, apóyate en el servidor [MCP](../docs/glosario.md#mcp) o busca antecedentes con `engram search "<tema>"`.
 
@@ -96,7 +97,7 @@ Lo que falta por aclarar: <preguntas concretas, o "nada, procedo">
 
 Cuando `implementer` entrega en `REVIEW`, calcula la [puerta de riesgo](../docs/glosario.md#puerta-de-riesgo) y elige revisores según la [revisión en paralelo](../skills/agent-routing/SKILL.md#5-revision-en-paralelo-y-puerta-de-riesgo). Después:
 
-1. **Diversidad, antes de lanzar:** si `security-reviewer` acabaría en el mismo proveedor con el que trabajó `implementer` (registrado con `python3 tools/project-memory.py usage`, incluida una elevación al nivel de la tarea), convócalo con el modelo de su nivel de otro proveedor disponible. Al consolidar, comprueba que el proveedor que declara su informe es distinto; si no había otro disponible o aun así coinciden, refléjalo en `Desviación` ([`docs/LLM.md`](../docs/LLM.md#5-diversidad-de-proveedor-en-revision)).
+1. **Diversidad, antes de lanzar:** si `security-reviewer` acabaría en el mismo proveedor con el que trabajó `implementer` (consúltalo con `python3 tools/project-memory.py --repo <ruta> usage --list --task "<id>"`, incluida una elevación al nivel de la tarea), convócalo con el modelo de su nivel de otro proveedor disponible. Al consolidar, comprueba que el proveedor que declara su informe es distinto; si no había otro disponible o aun así coinciden, refléjalo en `Desviación` ([`docs/LLM.md`](../docs/LLM.md#5-diversidad-de-proveedor-en-revision)).
 2. **Independencia:** lanza [`qa`](qa.md) y [`security-reviewer`](security-reviewer.md) en paralelo si el *harness* admite subagentes, o uno tras otro si no. En ambos casos cada uno recibe **solo el contrato y el diff**: nunca el razonamiento de `implementer` ni el informe del otro revisor.
 3. **Evidencia o reserva:** un hallazgo `bloqueante` sin escenario concreto ni comprobación reproducible se rebaja a reserva. Ante la duda, lee tú el `fichero:línea` citado antes de devolver el trabajo.
 4. **El dictamen final es el peor de los dos** (`NO APTO` > `APTO CON RESERVAS` > `APTO`). Un `NO EVALUABLE` de cualquiera impide cerrar hasta resolver lo que falta.

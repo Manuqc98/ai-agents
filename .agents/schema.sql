@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS task_notes (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   task_id      TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
   agent_name   TEXT NOT NULL,
-  kind         TEXT NOT NULL CHECK (kind IN ('handoff','replanteo','devolucion','qa','observacion')),
+  kind         TEXT NOT NULL CHECK (kind IN ('handoff','replanteo','devolucion','qa','security','observacion')),
   text         TEXT NOT NULL,
   evidence_ref TEXT,
   created_at   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP

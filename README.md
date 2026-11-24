@@ -23,6 +23,8 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 ├── AGENTS.md                  # Punto de entrada único: reglas de oro, circuitos y contrato de handoff
 ├── CLAUDE.md -> AGENTS.md     # Enlace simbólico para compatibilidad automática con Claude Code
 ├── README.md                  # Visión general, principios de portabilidad y hoja de ruta
+├── .github/workflows/
+│   └── ci.yml                 # Validación automática (check-repo.py + pruebas unitarias)
 ├── .agents/
 │   └── schema.sql             # Esquema SQLite de 4 tablas (tareas, notas, decisiones, uso de modelos)
 ├── agents/                    # Equipo base de 4 roles (Iteración 2) + revisor de seguridad
@@ -48,6 +50,7 @@ Este repositorio está diseñado bajo dos reglas de portabilidad:
 ├── tests/
 │   ├── clasificacion.md       # Batería de 16 casos de regresión del enrutado (Tipo × Severidad)
 │   ├── test_check_repo.py     # Pruebas de la resolución de proveedor de check-repo.py
+│   ├── test_project_memory.py # Pruebas de la memoria SQLite multi-repositorio (project-memory.py)
 │   └── test_risk_gate.py      # Pruebas de la puerta de riesgo sobre repositorios git temporales
 └── tools/
     ├── check-repo.py          # Validador determinista: enlaces+#anclas, frontmatter, portabilidad multi-LLM, clasificación y diversidad de proveedor
